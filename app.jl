@@ -1,6 +1,31 @@
+using Dash, DashHtmlComponents, DashCoreComponents, DashBootstrapComponents
+using PlotlyJS
+using Dates
 
-using Dash, DashHtmlComponents, DashCoreComponents, DashBootstrapComponents, PlotlyJS, Dates
+include("src/dataProcessing.jl")
 
+# Read global confirmed cases from repo
+confirmedData = readGlobalConfirmedCSV()
+
+# Read global recovered cases from repo
+recoveredData = readGlobalRecoveredCSV()
+
+# Read global deaths from repo
+deathsData = readGlobalDeathsCSV()
+
+# Sums total confirmed cases worldwide
+totalConfirmedCases = getTotalConfirmedCases(confirmedData)
+
+# Sums total recovered cases worldwide
+totalRecoveredCases = getTotalConfirmedCases(recoveredData)
+
+# Sums total deaths worldwide
+totalDeaths = getTotalConfirmedCases(deathsData)
+
+# Providing dropdown options of countries
+dropdownOptions = getListOfCountries(confirmedData)
+
+# Initial Dash application with dark theme
 app = dash(external_stylesheets = [dbc_themes.DARKLY])
 
 ###################
@@ -8,7 +33,6 @@ app = dash(external_stylesheets = [dbc_themes.DARKLY])
 ###################
 
 controls =[
-
     dbc_col(
         dcc_datepickersingle(
             min_date_allowed = Date(1995, 8, 5),
@@ -21,11 +45,7 @@ controls =[
 
     dbc_col(
         dcc_dropdown(
-            options = [
-                (label = "New York City", value = "NYC"),
-                (label = "Montreal", value = "MTL"),
-                (label = "San Francisco", value = "SF")
-            ],
+            options = dropdownOptions,
             value = "MTL",
             style = Dict("color" => "black"),
         ),
@@ -58,12 +78,8 @@ information = [
     dbc_card(
         [
             dbc_cardbody([
-                html_h4("Confirmed Cases", className = "card-title"),
-                html_p(
-                    "Some quick example text to build on the card title and " *
-                    "make up the bulk of the card's content.",
-                    className = "card-text",
-                ),
+                html_h3("Confirmed Cases", className = "card-title"),
+                html_h4(totalConfirmedCases),
             ]),
         ],
         body=true,
@@ -74,12 +90,8 @@ information = [
     dbc_card(
         [
             dbc_cardbody([
-                html_h4("Recovered Cases", className = "card-title"),
-                html_p(
-                    "Some quick example text to build on the card title and " *
-                    "make up the bulk of the card's content.",
-                    className = "card-text",
-                ),
+                html_h3("Recovered Cases", className = "card-title"),
+                html_h4(totalRecoveredCases),
             ]),
         ],
         body=true,
@@ -90,12 +102,8 @@ information = [
     dbc_card(
         [
             dbc_cardbody([
-                html_h4("Deaths", className = "card-title"),
-                html_p(
-                    "Some quick example text to build on the card title and " *
-                    "make up the bulk of the card's content.",
-                    className = "card-text",
-                ),
+                html_h3("Deaths", className = "card-title"),
+                html_h4(totalDeaths),
             ]),
         ],
         body=true,
@@ -106,28 +114,8 @@ information = [
     dbc_card(
         [
             dbc_cardbody([
-                html_h4("Vaccines Administered", className = "card-title"),
-                html_p(
-                    "Some quick example text to build on the card title and " *
-                    "make up the bulk of the card's content.",
-                    className = "card-text",
-                ),
-            ]),
-        ],
-        body=true,
-    ),
-
-    html_br(),
-
-    dbc_card(
-        [
-            dbc_cardbody([
-                html_h4("Vaccines Administered", className = "card-title"),
-                html_p(
-                    "Some quick example text to build on the card title and " *
-                    "make up the bulk of the card's content.",
-                    className = "card-text",
-                ),
+                html_h3("Vaccines Administered", className = "card-title"),
+                html_h4(totalConfirmedCases),
             ]),
         ],
         body=true,
@@ -151,9 +139,8 @@ map=dcc_graph(
             ),
         ],
         layout = (
-                autosize = true,
-                mapbox = Dict("zoom"=>10, "center"=>(lon=145.14662, lat=-37.88), "style"=>"open-street-map"),
-                margin=Dict("r"=>0,"t"=>0,"l"=>0,"b"=>0),
+            mapbox = Dict("zoom"=>10, "center"=>(lon=145.14662, lat=-37.88), "style"=>"open-street-map"),
+            margin=Dict("r"=>0,"t"=>0,"l"=>0,"b"=>0),
         )
     ),
     style = Dict("height"=>"81vh"),
@@ -173,7 +160,7 @@ app.layout = dbc_container(
                 dbc_col(information, width=3),
                 dbc_col(map, width=9),
             ], 
-            align="center"
+            align="center",
         ),
     ],
     fluid=true,
