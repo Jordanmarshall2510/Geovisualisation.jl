@@ -1,8 +1,13 @@
 using DataFrames
 using CSV
 using HTTP
+using Dates
 
 import Humanize: digitsep
+
+#################
+# Reading of Date
+#################
 
 # Reads time series COVID-19 global confirmed cases raw CSV file from repository.
 function readGlobalConfirmedCSV()
@@ -24,6 +29,10 @@ function readGlobalRecoveredCSV()
     data = CSV.read(url.body, DataFrame)
     return data
 end
+
+###################
+# Information Cards
+###################
 
 # Gets total confirmed cases worldwide by summing all countries in dataframe.
 function getTotalConfirmedCases(df)
@@ -52,6 +61,20 @@ function getTotalDeaths(df)
     return digitsep(total)
 end
 
+###################
+# Scatter Map Plot
+###################
+
+# function getGraphData(df)
+#     println(names(df))
+#     data = df."Country/Region"
+#     print(data)
+# end
+
+###################
+# Search and filter
+###################
+
 # Gets list of all countries listed in dataframe. If country has multiple entries, the province/state is added also.
 function getListOfCountries(df)
     listOfCountries = []
@@ -70,13 +93,14 @@ end
 
 # Provides start date for date picker.
 function getStartDate(df)
-    print(names(df)[5])
+    date = names(df)[5]
+    splitDate = split(date,"/")
+    return Date(parse(Int64, "20" * splitDate[3]), parse(Int64, splitDate[1]), parse(Int64, splitDate[2]))
 end
 
 # Provides end date for date picker.
 function getEndDate(df)
-
+    date = names(df)[ncol(df)]
+    splitDate = split(date,"/")
+    return Date(parse(Int64, "20" * splitDate[3]), parse(Int64, splitDate[1]), parse(Int64, splitDate[2]))
 end
-
-data = readGlobalConfirmedCSV()
-getStartDate(data)

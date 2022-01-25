@@ -1,6 +1,7 @@
 using Dash, DashHtmlComponents, DashCoreComponents, DashBootstrapComponents
 using PlotlyJS
 using Dates
+using DataFrames
 
 include("src/dataProcessing.jl")
 
@@ -25,6 +26,12 @@ totalDeaths = getTotalConfirmedCases(deathsData)
 # Providing dropdown options of countries
 dropdownOptions = getListOfCountries(confirmedData)
 
+# Gets first date of date entry
+startDate = getStartDate(confirmedData)
+
+# Gets last date of date entry
+endDate = getEndDate(confirmedData)
+
 # Initial Dash application with dark theme
 app = dash(external_stylesheets = [dbc_themes.DARKLY])
 
@@ -35,10 +42,10 @@ app = dash(external_stylesheets = [dbc_themes.DARKLY])
 controls =[
     dbc_col(
         dcc_datepickersingle(
-            min_date_allowed = Date(1995, 8, 5),
-            max_date_allowed = Date(2017, 9, 10),
-            initial_visible_month= Date(2017, 8, 5),
-            date = Date(2017, 8, 25),
+            min_date_allowed = startDate,
+            max_date_allowed = endDate,
+            date = endDate,
+            display_format="Do MMM YY"
         ),
         width="auto",
     ),
@@ -78,8 +85,8 @@ information = [
     dbc_card(
         [
             dbc_cardbody([
-                html_h3("Confirmed Cases", className = "card-title"),
-                html_h4(totalConfirmedCases),
+                html_h5("Confirmed Cases", className = "card-title"),
+                html_h6(totalConfirmedCases),
             ]),
         ],
         body=true,
@@ -90,8 +97,8 @@ information = [
     dbc_card(
         [
             dbc_cardbody([
-                html_h3("Recovered Cases", className = "card-title"),
-                html_h4(totalRecoveredCases),
+                html_h5("Recovered Cases", className = "card-title"),
+                html_h6(totalRecoveredCases),
             ]),
         ],
         body=true,
@@ -102,8 +109,8 @@ information = [
     dbc_card(
         [
             dbc_cardbody([
-                html_h3("Deaths", className = "card-title"),
-                html_h4(totalDeaths),
+                html_h5("Deaths", className = "card-title"),
+                html_h6(totalDeaths),
             ]),
         ],
         body=true,
@@ -114,8 +121,8 @@ information = [
     dbc_card(
         [
             dbc_cardbody([
-                html_h3("Vaccines Administered", className = "card-title"),
-                html_h4(totalConfirmedCases),
+                html_h5("Vaccines Administered", className = "card-title"),
+                html_h6(totalConfirmedCases),
             ]),
         ],
         body=true,
@@ -126,20 +133,32 @@ information = [
 # Scatter Map Graph
 ###################
 
+# Refer to https://plotly.com/javascript/mapbox-layers/ for mapbox parameters
+
 map=dcc_graph(
     id = "graph-mapbox-plot",
     figure = (
         data = [
             (
-                lon = [145.1466232, 145.1489419, 145.1489618], 
-                lat = [-37.8868434, -37.8871689, -37.8870577],
+                hovertext = confirmedData."Country/Region",
+                hoverlabel = confirmedData[!, ncol(confirmedData)],
+                lon = confirmedData."Long", 
+                lat = confirmedData."Lat",
                 type = "scattermapbox", 
+                marker = Dict(
+                    "color"=>"blue", 
+                    "size" => (confirmedData[!, ncol(confirmedData)]/findmax(confirmedData[!, ncol(confirmedData)])[1])*300,
+                ),
+                hoverinfo = "y",
+                # marker_size = confirmedData[!, ncol(confirmedData)],
+                # colorscale = confirmedData[!, ncol(confirmedData)],
+                # hoverinfo = confirmedData."Country/Region",
                 name = "m1", 
-                mode = "markers"
+                mode = "markers",
             ),
         ],
         layout = (
-            mapbox = Dict("zoom"=>10, "center"=>(lon=145.14662, lat=-37.88), "style"=>"open-street-map"),
+            mapbox = Dict("style"=>"open-street-map"),
             margin=Dict("r"=>0,"t"=>0,"l"=>0,"b"=>0),
         )
     ),
