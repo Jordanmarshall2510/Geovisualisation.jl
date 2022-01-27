@@ -30,12 +30,22 @@ function readGlobalRecoveredCSV()
     return data
 end
 
+# Reads time series COVID-19 global recovered cases raw CSV file from repository.
+function readGlobalVaccinationCSV()
+    url = HTTP.get("https://raw.githubusercontent.com/govex/COVID-19/master/data_tables/vaccine_data/global_data/time_series_covid19_vaccine_doses_admin_global.csv")
+    data = CSV.read(url.body, DataFrame)
+    data = select!(data, Not(:1:6))
+    data = select!(data, Not(:5:6))
+    return data
+end
+
 ###################
 # Information Cards
 ###################
 
 # Gets total confirmed cases worldwide by summing all countries in dataframe.
 function getTotalConfirmedCases(df)
+    replace!(df[!,ncol(df)], missing => 0)
     total = sum(df[!,ncol(df)])
     if(total == 0)
         return "No Data Available"
@@ -45,6 +55,7 @@ end
 
 # Gets total recovered cases worldwide by summing all countries in dataframe.
 function getTotalRecoveredCases(df)
+    replace!(df[!,ncol(df)], missing => 0)
     total = sum(df[!,ncol(df)])
     if(total == 0)
         return "No Data Available"
@@ -54,7 +65,23 @@ end
 
 # Gets total deaths worldwide by summing all countries in dataframe.
 function getTotalDeaths(df)
+    replace!(df[!,ncol(df)], missing => 0)
     total = sum(df[!,ncol(df)])
+    if(total == 0)
+        return "No Data Available"
+    end
+    return digitsep(total)
+end
+
+# Gets total vaccinations worldwide by summing all countries in dataframe.
+function getTotalVaccinations(df)
+    total = 0
+    replace!(df[!,ncol(df)], missing => 0)
+    for x in eachrow(df)
+        if ismissing(x.Province_State)
+            total += x[length(x)]
+        end
+    end
     if(total == 0)
         return "No Data Available"
     end
@@ -64,10 +91,6 @@ end
 ###################
 # Scatter Map Plot
 ###################
-
-function getGraphData(df)
-
-end
 
 ###################
 # Search and filter
@@ -92,13 +115,21 @@ end
 # Provides start date for date picker.
 function getStartDate(df)
     date = names(df)[5]
-    splitDate = split(date,"/")
-    return Date(parse(Int64, "20" * splitDate[3]), parse(Int64, splitDate[1]), parse(Int64, splitDate[2]))
+    return formatToDateObject(date)
 end
 
 # Provides end date for date picker.
 function getEndDate(df)
     date = names(df)[ncol(df)]
-    splitDate = split(date,"/")
-    return Date(parse(Int64, "20" * splitDate[3]), parse(Int64, splitDate[1]), parse(Int64, splitDate[2]))
+    return formatToDateObject(date)
+end
+
+###################
+# Utility functions
+###################
+
+# Converts date provided in the dataframe to a date object.
+function formatToDateObject(date)
+    date = split(date,"/")
+    return Date(parse(Int64, "20" * date[3]), parse(Int64, date[1]), parse(Int64, date[2]))
 end
