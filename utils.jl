@@ -65,11 +65,9 @@ end
 # Scatter Map Plot
 ###################
 
-# function getGraphData(df)
-#     println(names(df))
-#     data = df."Country/Region"
-#     print(data)
-# end
+function getGraphData(df)
+
+end
 
 ###################
 # Search and filter

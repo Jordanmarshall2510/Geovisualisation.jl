@@ -3,7 +3,8 @@ using PlotlyJS
 using Dates
 using DataFrames
 
-include("src/dataProcessing.jl")
+include("utils.jl")
+include("callbacks.jl")
 
 # Read global confirmed cases from repo
 confirmedData = readGlobalConfirmedCSV()
