@@ -15,6 +15,9 @@ recoveredData = readGlobalRecoveredCSV()
 # Read global deaths from repo
 deathsData = readGlobalDeathsCSV()
 
+# Read global vaccination from repo
+vaccinationData = readGlobalVaccinationCSV()
+
 # Sums total confirmed cases worldwide
 totalConfirmedCases = getTotalConfirmedCases(confirmedData)
 
@@ -23,6 +26,9 @@ totalRecoveredCases = getTotalConfirmedCases(recoveredData)
 
 # Sums total deaths worldwide
 totalDeaths = getTotalConfirmedCases(deathsData)
+
+# Sums total deaths worldwide
+totalVaccinations = getTotalVaccinations(vaccinationData)
 
 # Providing dropdown options of countries
 dropdownOptions = getListOfCountries(confirmedData)
@@ -123,7 +129,7 @@ information = [
         [
             dbc_cardbody([
                 html_h5("Vaccines Administered", className = "card-title"),
-                html_h6(totalConfirmedCases),
+                html_h6(totalVaccinations),
             ]),
         ],
         body=true,
