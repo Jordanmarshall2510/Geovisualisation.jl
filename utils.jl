@@ -92,6 +92,11 @@ end
 # Scatter Map Plot
 ###################
 
+# Get data from specified date from dataframe.
+function getGraphDataUsingDate(df, date)
+    return df
+end
+
 ###################
 # Search and filter
 ###################
@@ -128,8 +133,15 @@ end
 # Utility functions
 ###################
 
-# Converts date provided in the dataframe to a date object.
+# Converts date format provided in the dataframe to a date object.
 function formatToDateObject(date)
     date = split(date,"/")
     return Date(parse(Int64, "20" * date[3]), parse(Int64, date[1]), parse(Int64, date[2]))
+end
+
+# Converts date object string to date format provided in the dataframe.
+function DateObjectToFormat(date)
+    date = join(collect(date)[3:length(date)])
+    date = split(date,"-")
+    return string(parse(Int64, date[2])) * "/" * string(parse(Int64, date[3])) * "/" * string(parse(Int64, date[1]))
 end
