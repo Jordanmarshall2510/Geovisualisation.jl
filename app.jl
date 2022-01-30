@@ -49,6 +49,7 @@ app = dash(external_stylesheets = [dbc_themes.DARKLY])
 controls =[
     dbc_col(
         dcc_datepickersingle(
+            id = "date-picker",
             min_date_allowed = startDate,
             max_date_allowed = endDate,
             date = endDate,
@@ -68,6 +69,7 @@ controls =[
 
     dbc_col(
         dcc_slider(
+            id="map-slider",
             min=0,
             max=100000,
             step=nothing,
@@ -144,31 +146,6 @@ information = [
 
 map=dcc_graph(
     id = "graph-mapbox-plot",
-    figure = (
-        data = [
-            (
-                hovertext = confirmedData."Country/Region",
-                hoverlabel = confirmedData[!, ncol(confirmedData)],
-                lon = confirmedData."Long", 
-                lat = confirmedData."Lat",
-                type = "scattermapbox", 
-                marker = Dict(
-                    "color"=>"blue", 
-                    "size" => (confirmedData[!, ncol(confirmedData)]/findmax(confirmedData[!, ncol(confirmedData)])[1])*300,
-                ),
-                hoverinfo = "y",
-                # marker_size = confirmedData[!, ncol(confirmedData)],
-                # colorscale = confirmedData[!, ncol(confirmedData)],
-                # hoverinfo = confirmedData."Country/Region",
-                name = "m1", 
-                mode = "markers",
-            ),
-        ],
-        layout = (
-            mapbox = Dict("style"=>"open-street-map"),
-            margin=Dict("r"=>0,"t"=>0,"l"=>0,"b"=>0),
-        )
-    ),
     style = Dict("height"=>"81vh"),
 )
 
@@ -191,6 +168,44 @@ app.layout = dbc_container(
     ],
     fluid=true,
 )
+
+###################################
+# Callbacks
+###################################
+
+# Change graph using specified date's data.
+callback!(
+    app, 
+    Output("graph-mapbox-plot", "figure"), 
+    Input("date-picker", "date"),
+    Input("map-slider", "value")
+    ) do dateInput, sliderInput
+    figure = (
+        data = [
+            (
+                hovertext = confirmedData."Country/Region",
+                lon = confirmedData."Long", 
+                lat = confirmedData."Lat",
+                type = "scattermapbox", 
+                marker = Dict(
+                    "color"=>"blue", 
+                    "size" => (confirmedData[!, DateObjectToFormat(dateInput)]/findmax(confirmedData[!, DateObjectToFormat(dateInput)])[1])*300,
+                ),
+                hoverinfo = "y",
+                # marker_size = confirmedData[!, ncol(confirmedData)],
+                # colorscale = confirmedData[!, ncol(confirmedData)],
+                # hoverinfo = confirmedData."Country/Region",
+                name = "m1", 
+                mode = "markers",
+            ),
+        ],
+        layout = (
+            mapbox = Dict("style"=>"open-street-map"),
+            margin=Dict("r"=>0,"t"=>0,"l"=>0,"b"=>0),
+        )
+    )
+    return figure
+end
 
 ###################################
 # Run Server
