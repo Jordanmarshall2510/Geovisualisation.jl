@@ -4,7 +4,6 @@ using Dates
 using DataFrames
 
 include("utils.jl")
-include("callbacks.jl")
 
 # Read global confirmed cases from repo
 confirmedData = readGlobalConfirmedCSV()
@@ -130,7 +129,7 @@ information = [
 globalMap=[
     dcc_graph(
         id = "graph-mapbox-plot",
-        style = Dict("height"=>"75vh"),
+        style = Dict("height"=>"76vh"),
     ),
 
     html_hr(),
@@ -149,11 +148,17 @@ globalMap=[
 countryGraphs=[
     dbc_row([
         dbc_col(
-            dcc_graph(),
+            dcc_graph(
+                id="country-map",
+                style = Dict("height"=>"40vh"),
+            ),
             width=5,
         ),
         dbc_col(
-            dcc_graph(),
+            dcc_graph(
+                id="country-vaccination-graph",
+                style = Dict("height"=>"40vh"),
+            ),
             width=5,
 
         )
@@ -163,11 +168,17 @@ countryGraphs=[
 
     dbc_row([
         dbc_col(
-            dcc_graph(),
+            dcc_graph(
+                id="country-confirmed-graph",
+                style = Dict("height"=>"40vh"),
+            ),
             width=5,
         ),
         dbc_col(
-            dcc_graph(),
+            dcc_graph(
+                id="country-deaths-graph",
+                style = Dict("height"=>"40vh"),
+            ),
             width=5,
         )
     ], justify = "center"),
@@ -197,6 +208,7 @@ app.layout = dbc_container(
 # Callbacks
 ###################################
 
+# Change between global and country views
 callback!(
     app,
     Output("graphs", "children"),
@@ -236,6 +248,95 @@ callback!(
         )
     )
     return figure
+end
+
+# Changes country graphs on selection
+callback!(
+    app,
+    Output("country-map", "figure"),
+    Output("country-vaccination-graph", "figure"),
+    Output("country-confirmed-graph", "figure"),
+    Output("country-deaths-graph", "figure"),
+    Input("countries-dropdown", "value"),
+) do region
+    if (isnothing(region) == false) && (region != "Global")
+        if occursin(",", region)
+            format = split(region, ",")
+            region = format[1]
+            province = format[2]
+            filteredConfirmedData = filter(df -> (df."Province/State" == province) & (df."Country/Region" == region), confirmedData)
+            filteredDeathsData = filter(df -> (df."Province/State" == province) & (df."Country/Region" == region), deathsData)
+            filteredVaccinationData = filter(df -> (df."Province_State" == province) & (df."Country_Region" == region), vaccinationData)
+        else
+            filteredConfirmedData = filter(df -> (df."Province/State" == "null") & (df."Country/Region" == region), confirmedData)
+            filteredDeathsData = filter(df -> (df."Province/State" == "null") & (df."Country/Region" == region), deathsData)
+            filteredVaccinationData = filter(df -> (df."Province_State" == "null") & (df."Country_Region" == region), vaccinationData)
+        end
+        
+        map = figure = (
+            data = [
+                (
+                    hovertext = filteredConfirmedData."Country/Region",
+                    lon = [filteredConfirmedData."Long"[1]], 
+                    lat = [filteredConfirmedData."Lat"[1]],
+                    type = "scattermapbox", 
+                    marker = Dict(
+                        "color"=>"red", 
+                        "size" => 15,
+                    ),
+                    name = "m1", 
+                    mode = "markers",
+                ),
+            ],
+            layout = (
+                mapbox = Dict(
+                    "zoom"=>5, 
+                    "center"=>(
+                        lon = filteredConfirmedData."Long"[1], 
+                        lat = filteredConfirmedData."Lat"[1],
+                    ),
+                    "style"=>"open-street-map",
+                ),
+                margin=Dict("r"=>0,"t"=>0,"l"=>0,"b"=>0),
+            )
+        )
+        
+        confirmedGraph = plot(
+            filteredConfirmedData, 
+            x=names(filteredConfirmedData[!, 5:ncol(filteredConfirmedData)]), 
+            y=collect(filteredConfirmedData[!, 5:ncol(filteredConfirmedData)][1,:]),
+            Layout(
+                title="Confirmed Cases Time Series",
+                # plot_bgcolor = "#222",
+                # paper_bgcolor = "#222",
+            )
+        )
+
+        deathsGraph = plot(
+            filteredDeathsData, 
+            x=names(filteredDeathsData[!, 5:ncol(filteredDeathsData)]), 
+            y=collect(filteredDeathsData[!, 5:ncol(filteredDeathsData)][1,:]),
+            Layout(
+                title="Death Cases Time Series",
+                # plot_bgcolor = "#222",
+                # paper_bgcolor = "#222",
+            )
+        )
+
+        vaccinationGraph = plot(
+            filteredVaccinationData, 
+            x=names(filteredVaccinationData[!, 5:ncol(filteredVaccinationData)]), 
+            y=collect(filteredVaccinationData[!, 5:ncol(filteredVaccinationData)][1,:]),
+            Layout(
+                title="Vaccination Time Series",
+                # plot_bgcolor = "#222",
+                # paper_bgcolor = "#222",
+            )
+        )
+
+        return map, confirmedGraph, vaccinationGraph, deathsGraph
+    end
+    return no_update(), no_update(), no_update(), no_update()
 end
 
 ###################################

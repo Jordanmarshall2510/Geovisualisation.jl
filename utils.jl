@@ -13,6 +13,7 @@ import Humanize: digitsep
 function readGlobalConfirmedCSV()
     url = HTTP.get("https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_confirmed_global.csv")
     data = CSV.read(url.body, DataFrame)
+    replace!(data."Province/State", missing => "null")
     return data
 end
 
@@ -20,6 +21,7 @@ end
 function readGlobalDeathsCSV()
     url = HTTP.get("https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_deaths_global.csv")
     data = CSV.read(url.body, DataFrame)
+    replace!(data."Province/State", missing => "null")
     return data
 end
 
@@ -27,6 +29,7 @@ end
 function readGlobalRecoveredCSV()
     url = HTTP.get("https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_recovered_global.csv")
     data = CSV.read(url.body, DataFrame)
+    replace!(data."Province/State", missing => "null")
     return data
 end
 
@@ -36,6 +39,7 @@ function readGlobalVaccinationCSV()
     data = CSV.read(url.body, DataFrame)
     data = select!(data, Not(:1:6))
     data = select!(data, Not(:5:6))
+    replace!(data."Province_State", missing => "null")
     return data
 end
 
@@ -106,13 +110,11 @@ function getListOfCountries(df)
     listOfCountries = []
     push!(listOfCountries, (label="Global", value="Global"))
     for x in eachrow(df)
-        region = ""
-        if !ismissing(x."Province/State")
-            region = x."Country/Region" * " (" * x."Province/State" * ")"
+        if x."Province/State" != "null"
+            optionObject = (label=x."Country/Region" * " (" * x."Province/State" * ")", value=x."Country/Region" * "," * x."Province/State")
         else
-            region = x."Country/Region"
+            optionObject = (label=x."Country/Region", value=x."Country/Region")
         end
-        optionObject = (label=region, value=region)
         push!(listOfCountries, optionObject)
     end
     return listOfCountries
