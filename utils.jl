@@ -104,6 +104,7 @@ end
 # Gets list of all countries listed in dataframe. If country has multiple entries, the province/state is added also.
 function getListOfCountries(df)
     listOfCountries = []
+    push!(listOfCountries, (label="Global", value="Global"))
     for x in eachrow(df)
         region = ""
         if !ismissing(x."Province/State")

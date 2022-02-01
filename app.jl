@@ -40,7 +40,7 @@ startDate = getStartDate(confirmedData)
 endDate = getEndDate(confirmedData)
 
 # Initial Dash application with dark theme
-app = dash(external_stylesheets = [dbc_themes.DARKLY])
+app = dash(external_stylesheets = [dbc_themes.DARKLY], suppress_callback_exceptions=true)
 
 ###################
 # Search and filter
@@ -60,30 +60,13 @@ controls =[
 
     dbc_col(
         dcc_dropdown(
+            id="countries-dropdown",
             options = dropdownOptions,
-            value = "MTL",
+            value="Global",
             style = Dict("color" => "black"),
         ),
-        width="2",
-    ),
-
-    dbc_col(
-        dcc_slider(
-            id="map-slider",
-            min=0,
-            max=100000,
-            step=nothing,
-            value=1,
-            marks=Dict(
-                0 => Dict("label"=> "0 Cases"),
-                25000 => Dict("label"=> "25000 Cases"),
-                50000 => Dict("label"=> "50000 Cases"),
-                75000 => Dict("label"=> "75000 Cases"),
-                100000 => Dict("label"=> "100000 Cases"),
-            )
-        ),
-        width="4",
-    ),  
+        width="5",
+    ), 
 ]
 
 ###################
@@ -144,10 +127,51 @@ information = [
 
 # Refer to https://plotly.com/javascript/mapbox-layers/ for mapbox parameters
 
-map=dcc_graph(
-    id = "graph-mapbox-plot",
-    style = Dict("height"=>"81vh"),
-)
+globalMap=[
+    dcc_graph(
+        id = "graph-mapbox-plot",
+        style = Dict("height"=>"75vh"),
+    ),
+
+    html_hr(),
+
+    dcc_slider(
+        id="map-slider",
+        min=5,
+        max=ncol(confirmedData),
+        step=1,
+        value=ncol(confirmedData),
+        tooltip=Dict("placement"=> "bottom", "always_visible"=>true),
+        updatemode="drag",
+    ),
+]
+
+countryGraphs=[
+    dbc_row([
+        dbc_col(
+            dcc_graph(),
+            width=5,
+        ),
+        dbc_col(
+            dcc_graph(),
+            width=5,
+
+        )
+    ], justify = "center"),
+
+    html_hr(),
+
+    dbc_row([
+        dbc_col(
+            dcc_graph(),
+            width=5,
+        ),
+        dbc_col(
+            dcc_graph(),
+            width=5,
+        )
+    ], justify = "center"),
+]
 
 app.layout = dbc_container(
     [
@@ -161,7 +185,7 @@ app.layout = dbc_container(
         dbc_row(
             [
                 dbc_col(information, width=3),
-                dbc_col(map, width=9),
+                dbc_col(id="graphs", width=9),
             ], 
             align="center",
         ),
@@ -173,13 +197,24 @@ app.layout = dbc_container(
 # Callbacks
 ###################################
 
-# Change graph using specified date's data.
+callback!(
+    app,
+    Output("graphs", "children"),
+    Input("countries-dropdown", "value"),
+) do  country
+    if country == "Global"
+        return globalMap
+    else
+        return countryGraphs
+    end
+end
+
+# Change graph using slider.
 callback!(
     app, 
     Output("graph-mapbox-plot", "figure"), 
-    Input("date-picker", "date"),
     Input("map-slider", "value")
-    ) do dateInput, sliderInput
+    ) do sliderInput
     figure = (
         data = [
             (
@@ -189,12 +224,8 @@ callback!(
                 type = "scattermapbox", 
                 marker = Dict(
                     "color"=>"blue", 
-                    "size" => (confirmedData[!, DateObjectToFormat(dateInput)]/findmax(confirmedData[!, DateObjectToFormat(dateInput)])[1])*300,
+                    "size" => (confirmedData[!, sliderInput]/findmax(confirmedData[!, sliderInput])[1])*300,
                 ),
-                hoverinfo = "y",
-                # marker_size = confirmedData[!, ncol(confirmedData)],
-                # colorscale = confirmedData[!, ncol(confirmedData)],
-                # hoverinfo = confirmedData."Country/Region",
                 name = "m1", 
                 mode = "markers",
             ),
