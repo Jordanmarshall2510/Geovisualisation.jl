@@ -2,6 +2,7 @@ using DataFrames
 using CSV
 using HTTP
 using Dates
+using Memoize
 
 import Humanize: digitsep
 
@@ -10,7 +11,7 @@ import Humanize: digitsep
 #################
 
 # Reads time series COVID-19 global confirmed cases raw CSV file from repository.
-function readGlobalConfirmedCSV()
+@memoize function readGlobalConfirmedCSV()
     url = HTTP.get("https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_confirmed_global.csv")
     data = CSV.read(url.body, DataFrame)
     replace!(data."Province/State", missing => "null")
@@ -18,7 +19,7 @@ function readGlobalConfirmedCSV()
 end
 
 # Reads time series COVID-19 global deaths raw CSV file from repository.
-function readGlobalDeathsCSV()
+@memoize function readGlobalDeathsCSV()
     url = HTTP.get("https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_deaths_global.csv")
     data = CSV.read(url.body, DataFrame)
     replace!(data."Province/State", missing => "null")
@@ -26,7 +27,7 @@ function readGlobalDeathsCSV()
 end
 
 # Reads time series COVID-19 global recovered cases raw CSV file from repository.
-function readGlobalRecoveredCSV()
+@memoize function readGlobalRecoveredCSV()
     url = HTTP.get("https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_recovered_global.csv")
     data = CSV.read(url.body, DataFrame)
     replace!(data."Province/State", missing => "null")
@@ -34,7 +35,7 @@ function readGlobalRecoveredCSV()
 end
 
 # Reads time series COVID-19 global recovered cases raw CSV file from repository.
-function readGlobalVaccinationCSV()
+@memoize function readGlobalVaccinationCSV()
     url = HTTP.get("https://raw.githubusercontent.com/govex/COVID-19/master/data_tables/vaccine_data/global_data/time_series_covid19_vaccine_doses_admin_global.csv")
     data = CSV.read(url.body, DataFrame)
     data = select!(data, Not(:1:6))
@@ -48,7 +49,7 @@ end
 ###################
 
 # Gets total confirmed cases worldwide by summing all countries in dataframe.
-function getTotalConfirmedCases(df)
+@memoize function getTotalConfirmedCases(df)
     replace!(df[!,ncol(df)], missing => 0)
     total = sum(df[!,ncol(df)])
     if(total == 0)
@@ -58,7 +59,7 @@ function getTotalConfirmedCases(df)
 end
 
 # Gets total recovered cases worldwide by summing all countries in dataframe.
-function getTotalRecoveredCases(df)
+@memoize function getTotalRecoveredCases(df)
     replace!(df[!,ncol(df)], missing => 0)
     total = sum(df[!,ncol(df)])
     if(total == 0)
@@ -68,7 +69,7 @@ function getTotalRecoveredCases(df)
 end
 
 # Gets total deaths worldwide by summing all countries in dataframe.
-function getTotalDeaths(df)
+@memoize function getTotalDeaths(df)
     replace!(df[!,ncol(df)], missing => 0)
     total = sum(df[!,ncol(df)])
     if(total == 0)
@@ -78,7 +79,7 @@ function getTotalDeaths(df)
 end
 
 # Gets total vaccinations worldwide by summing all countries in dataframe.
-function getTotalVaccinations(df)
+@memoize function getTotalVaccinations(df)
     total = 0
     replace!(df[!,ncol(df)], missing => 0)
     for x in eachrow(df)
