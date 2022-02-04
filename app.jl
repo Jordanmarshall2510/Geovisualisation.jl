@@ -17,18 +17,6 @@ deathsData = readGlobalDeathsCSV()
 # Read global vaccination from repo
 vaccinationData = readGlobalVaccinationCSV()
 
-# Sums total confirmed cases worldwide
-totalConfirmedCases = getTotalConfirmedCases(confirmedData)
-
-# Sums total recovered cases worldwide
-totalRecoveredCases = getTotalConfirmedCases(recoveredData)
-
-# Sums total deaths worldwide
-totalDeaths = getTotalConfirmedCases(deathsData)
-
-# Sums total deaths worldwide
-totalVaccinations = getTotalVaccinations(vaccinationData)
-
 # Providing dropdown options of countries
 dropdownOptions = getListOfCountries(confirmedData)
 
@@ -73,11 +61,15 @@ controls =[
 ###################
 
 information = [
+    html_h3(id="info-title"),
+
+    html_hr(),
+
     dbc_card(
         [
             dbc_cardbody([
                 html_h5("Confirmed Cases", className = "card-title"),
-                html_h6(totalConfirmedCases),
+                html_h6(id="totalConfirmedCases"),
             ]),
         ],
         body=true,
@@ -89,7 +81,7 @@ information = [
         [
             dbc_cardbody([
                 html_h5("Recovered Cases", className = "card-title"),
-                html_h6(totalRecoveredCases),
+                html_h6(id="totalRecoveredCases"),
             ]),
         ],
         body=true,
@@ -101,7 +93,7 @@ information = [
         [
             dbc_cardbody([
                 html_h5("Deaths", className = "card-title"),
-                html_h6(totalDeaths),
+                html_h6(id="totalDeaths"),
             ]),
         ],
         body=true,
@@ -113,7 +105,7 @@ information = [
         [
             dbc_cardbody([
                 html_h5("Vaccines Administered", className = "card-title"),
-                html_h6(totalVaccinations),
+                html_h6(id="totalVaccinations"),
             ]),
         ],
         body=true,
@@ -221,6 +213,23 @@ callback!(
     end
 end
 
+# Update information cards
+callback!(
+    app,
+    Output("info-title", "children"),
+    Output("totalConfirmedCases", "children"),
+    Output("totalRecoveredCases", "children"),
+    Output("totalDeaths", "children"),
+    Output("totalVaccinations", "children"),
+    Input("date-picker", "date"),
+    Input("countries-dropdown", "value"),
+
+) do date, country
+    date = Date(date)
+    title = country * " -\t As of " * string(Dates.format(date, "dd u yyyy"))
+    return title, getTotalConfirmedCases(confirmedData, country, date), getTotalRecoveredCases(recoveredData, country, date), getTotalDeaths(deathsData, country, date), getTotalVaccinations(vaccinationData, country, date)
+end
+
 # Change graph using slider.
 callback!(
     app, 
@@ -260,18 +269,9 @@ callback!(
     Input("countries-dropdown", "value"),
 ) do region
     if (isnothing(region) == false) && (region != "Global")
-        if occursin(",", region)
-            format = split(region, ",")
-            region = format[1]
-            province = format[2]
-            filteredConfirmedData = filter(df -> (df."Province/State" == province) & (df."Country/Region" == region), confirmedData)
-            filteredDeathsData = filter(df -> (df."Province/State" == province) & (df."Country/Region" == region), deathsData)
-            filteredVaccinationData = filter(df -> (df."Province_State" == province) & (df."Country_Region" == region), vaccinationData)
-        else
-            filteredConfirmedData = filter(df -> (df."Province/State" == "null") & (df."Country/Region" == region), confirmedData)
-            filteredDeathsData = filter(df -> (df."Province/State" == "null") & (df."Country/Region" == region), deathsData)
-            filteredVaccinationData = filter(df -> (df."Province_State" == "null") & (df."Country_Region" == region), vaccinationData)
-        end
+        filteredConfirmedData = filter(df -> (df."Country/Region" == region), confirmedData)
+        filteredDeathsData = filter(df -> (df."Country/Region" == region), deathsData)
+        filteredVaccinationData = filter(df -> (df."Country/Region" == region), vaccinationData)
         
         map = figure = (
             data = [
