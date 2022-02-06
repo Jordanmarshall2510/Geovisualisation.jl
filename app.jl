@@ -225,9 +225,13 @@ callback!(
     Input("countries-dropdown", "value"),
 
 ) do date, country
-    date = Date(date)
-    title = country * " -\t As of " * string(Dates.format(date, "dd u yyyy"))
-    return title, getTotalConfirmedCases(confirmedData, country, date), getTotalRecoveredCases(recoveredData, country, date), getTotalDeaths(deathsData, country, date), getTotalVaccinations(vaccinationData, country, date)
+    if (isnothing(country) == false)
+        date = Date(date)
+        title = country * " -\t As of " * string(Dates.format(date, "dd u yyyy"))
+        return title, getTotalConfirmedCases(confirmedData, country, date), getTotalRecoveredCases(recoveredData, country, date), getTotalDeaths(deathsData, country, date), getTotalVaccinations(vaccinationData, country, date)
+    else
+        return "Please select an option from the dropdown menu", "No Data Available", "No Data Available", "No Data Available", "No Data Available"
+    end
 end
 
 # Change graph using slider.
