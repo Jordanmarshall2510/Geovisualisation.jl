@@ -27,7 +27,7 @@ startDate = getStartDate(confirmedData)
 endDate = getEndDate(confirmedData)
 
 # Initial Dash application with dark theme
-app = dash(external_stylesheets = [dbc_themes.DARKLY], suppress_callback_exceptions=true)
+app = dash(external_stylesheets = [dbc_themes.DARKLY, dbc_icons.BOOTSTRAP], suppress_callback_exceptions=true)
 
 ###################
 # Search and filter
@@ -119,12 +119,28 @@ information = [
 # Refer to https://plotly.com/javascript/mapbox-layers/ for mapbox parameters
 
 globalMap=[
+
+    dbc_tabs(
+        [
+            dbc_tab(label = "Confirmed Cases", tab_id = "confirmed-tab"),
+            dbc_tab(label = "Death Cases", tab_id = "death-tab"),
+        ],
+        id = "tabs",
+        active_tab = "confirmed-tab",
+    ),
+
     dcc_graph(
         id = "graph-mapbox-plot",
-        style = Dict("height"=>"76vh"),
+        style = Dict("height"=>"70vh"),
     ),
 
     html_hr(),
+
+    # dcc_interval(
+    #     id="auto-stepper",
+    #     interval=1*250, # in milliseconds
+    #     n_intervals=0
+    # ),
 
     dcc_slider(
         id="map-slider",
@@ -213,6 +229,18 @@ callback!(
     end
 end
 
+# callback!(
+#     app,
+#     Output("map-slider", "value"),
+#     Input("auto-stepper", "n_intervals"),
+# )do n_intervals
+#     if isnothing(n_intervals)
+#         return 0
+#     else
+#         return (n_intervals+1) % ncol(confirmedData)
+#     end
+# end
+
 # Update information cards
 callback!(
     app,
@@ -238,18 +266,27 @@ end
 callback!(
     app, 
     Output("graph-mapbox-plot", "figure"), 
-    Input("map-slider", "value")
-    ) do sliderInput
+    Input("map-slider", "value"),
+    Input("tabs", "active_tab"),
+    ) do sliderInput, tab
+    if tab == "confirmed-tab"
+        dataset = confirmedData
+        colour = "blue"
+    elseif tab == "death-tab"
+        dataset = deathsData
+        colour = "black"
+    end
+
     figure = (
         data = [
             (
-                hovertext = confirmedData."Country/Region",
-                lon = confirmedData."Long", 
-                lat = confirmedData."Lat",
+                hovertext = dataset."Country/Region",
+                lon = dataset."Long", 
+                lat = dataset."Lat",
                 type = "scattermapbox", 
                 marker = Dict(
-                    "color"=>"blue", 
-                    "size" => (confirmedData[!, sliderInput]/findmax(confirmedData[!, sliderInput])[1])*300,
+                    "color"=> colour, 
+                    "size" => (dataset[!, sliderInput]/findmax(dataset[!, sliderInput])[1])*150,
                 ),
                 name = "m1", 
                 mode = "markers",

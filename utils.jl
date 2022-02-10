@@ -75,7 +75,7 @@ end
         date = Dates.format(date, "m/d/yy")
         replace!(df[!,date], missing => 0)
         total = sum(df[!,date])
-        if(total == 0)
+        if(total > 0)
             return "No Data Available"
         end
         return digitsep(total)
@@ -92,7 +92,7 @@ end
         date = Dates.format(date, "m/d/yy")
         replace!(df[!,date], missing => 0)
         total = sum(df[!,date])
-        if(total == 0)
+        if(total > 0)
             return "No Data Available"
         end
         return digitsep(total)
@@ -109,7 +109,7 @@ end
         date = Dates.format(date, "m/d/yy")
         replace!(df[!,date], missing => 0)
         total = sum(df[!,date])
-        if(total == 0)
+        if(total > 0)
             return "No Data Available"
         end
         return digitsep(total)
@@ -126,7 +126,7 @@ end
         date = Dates.format(date, "yyyy-mm-dd")
         replace!(df[!,date], missing => 0)
         total = sum(df[!,date])
-        if(total == 0)
+        if(total > 0)
             return "No Data Available"
         end
         return digitsep(total)
