@@ -17,18 +17,6 @@ deathsData = readGlobalDeathsCSV()
 # Read global vaccination from repo
 vaccinationData = readGlobalVaccinationCSV()
 
-# Sums total confirmed cases worldwide
-totalConfirmedCases = getTotalConfirmedCases(confirmedData)
-
-# Sums total recovered cases worldwide
-totalRecoveredCases = getTotalConfirmedCases(recoveredData)
-
-# Sums total deaths worldwide
-totalDeaths = getTotalConfirmedCases(deathsData)
-
-# Sums total deaths worldwide
-totalVaccinations = getTotalVaccinations(vaccinationData)
-
 # Providing dropdown options of countries
 dropdownOptions = getListOfCountries(confirmedData)
 
@@ -39,7 +27,7 @@ startDate = getStartDate(confirmedData)
 endDate = getEndDate(confirmedData)
 
 # Initial Dash application with dark theme
-app = dash(external_stylesheets = [dbc_themes.DARKLY], suppress_callback_exceptions=true)
+app = dash(external_stylesheets = [dbc_themes.DARKLY, dbc_icons.BOOTSTRAP], suppress_callback_exceptions=true)
 
 ###################
 # Search and filter
@@ -73,11 +61,15 @@ controls =[
 ###################
 
 information = [
+    html_h3(id="info-title"),
+
+    html_hr(),
+
     dbc_card(
         [
             dbc_cardbody([
                 html_h5("Confirmed Cases", className = "card-title"),
-                html_h6(totalConfirmedCases),
+                html_h6(id="totalConfirmedCases"),
             ]),
         ],
         body=true,
@@ -89,7 +81,7 @@ information = [
         [
             dbc_cardbody([
                 html_h5("Recovered Cases", className = "card-title"),
-                html_h6(totalRecoveredCases),
+                html_h6(id="totalRecoveredCases"),
             ]),
         ],
         body=true,
@@ -101,7 +93,7 @@ information = [
         [
             dbc_cardbody([
                 html_h5("Deaths", className = "card-title"),
-                html_h6(totalDeaths),
+                html_h6(id="totalDeaths"),
             ]),
         ],
         body=true,
@@ -113,7 +105,7 @@ information = [
         [
             dbc_cardbody([
                 html_h5("Vaccines Administered", className = "card-title"),
-                html_h6(totalVaccinations),
+                html_h6(id="totalVaccinations"),
             ]),
         ],
         body=true,
@@ -127,12 +119,28 @@ information = [
 # Refer to https://plotly.com/javascript/mapbox-layers/ for mapbox parameters
 
 globalMap=[
+
+    dbc_tabs(
+        [
+            dbc_tab(label = "Confirmed Cases", tab_id = "confirmed-tab"),
+            dbc_tab(label = "Death Cases", tab_id = "death-tab"),
+        ],
+        id = "tabs",
+        active_tab = "confirmed-tab",
+    ),
+
     dcc_graph(
         id = "graph-mapbox-plot",
-        style = Dict("height"=>"76vh"),
+        style = Dict("height"=>"70vh"),
     ),
 
     html_hr(),
+
+    # dcc_interval(
+    #     id="auto-stepper",
+    #     interval=1*250, # in milliseconds
+    #     n_intervals=0
+    # ),
 
     dcc_slider(
         id="map-slider",
@@ -221,22 +229,64 @@ callback!(
     end
 end
 
+# callback!(
+#     app,
+#     Output("map-slider", "value"),
+#     Input("auto-stepper", "n_intervals"),
+# )do n_intervals
+#     if isnothing(n_intervals)
+#         return 0
+#     else
+#         return (n_intervals+1) % ncol(confirmedData)
+#     end
+# end
+
+# Update information cards
+callback!(
+    app,
+    Output("info-title", "children"),
+    Output("totalConfirmedCases", "children"),
+    Output("totalRecoveredCases", "children"),
+    Output("totalDeaths", "children"),
+    Output("totalVaccinations", "children"),
+    Input("date-picker", "date"),
+    Input("countries-dropdown", "value"),
+
+) do date, country
+    if (isnothing(country) == false)
+        date = Date(date)
+        title = country * " -\t As of " * string(Dates.format(date, "dd u yyyy"))
+        return title, getTotalConfirmedCases(confirmedData, country, date), getTotalRecoveredCases(recoveredData, country, date), getTotalDeaths(deathsData, country, date), getTotalVaccinations(vaccinationData, country, date)
+    else
+        return "Please select an option from the dropdown menu", "No Data Available", "No Data Available", "No Data Available", "No Data Available"
+    end
+end
+
 # Change graph using slider.
 callback!(
     app, 
     Output("graph-mapbox-plot", "figure"), 
-    Input("map-slider", "value")
-    ) do sliderInput
+    Input("map-slider", "value"),
+    Input("tabs", "active_tab"),
+    ) do sliderInput, tab
+    if tab == "confirmed-tab"
+        dataset = confirmedData
+        colour = "blue"
+    elseif tab == "death-tab"
+        dataset = deathsData
+        colour = "black"
+    end
+
     figure = (
         data = [
             (
-                hovertext = confirmedData."Country/Region",
-                lon = confirmedData."Long", 
-                lat = confirmedData."Lat",
+                hovertext = dataset."Country/Region",
+                lon = dataset."Long", 
+                lat = dataset."Lat",
                 type = "scattermapbox", 
                 marker = Dict(
-                    "color"=>"blue", 
-                    "size" => (confirmedData[!, sliderInput]/findmax(confirmedData[!, sliderInput])[1])*300,
+                    "color"=> colour, 
+                    "size" => (dataset[!, sliderInput]/findmax(dataset[!, sliderInput])[1])*150,
                 ),
                 name = "m1", 
                 mode = "markers",
@@ -260,18 +310,9 @@ callback!(
     Input("countries-dropdown", "value"),
 ) do region
     if (isnothing(region) == false) && (region != "Global")
-        if occursin(",", region)
-            format = split(region, ",")
-            region = format[1]
-            province = format[2]
-            filteredConfirmedData = filter(df -> (df."Province/State" == province) & (df."Country/Region" == region), confirmedData)
-            filteredDeathsData = filter(df -> (df."Province/State" == province) & (df."Country/Region" == region), deathsData)
-            filteredVaccinationData = filter(df -> (df."Province_State" == province) & (df."Country_Region" == region), vaccinationData)
-        else
-            filteredConfirmedData = filter(df -> (df."Province/State" == "null") & (df."Country/Region" == region), confirmedData)
-            filteredDeathsData = filter(df -> (df."Province/State" == "null") & (df."Country/Region" == region), deathsData)
-            filteredVaccinationData = filter(df -> (df."Province_State" == "null") & (df."Country_Region" == region), vaccinationData)
-        end
+        filteredConfirmedData = filter(df -> (df."Country/Region" == region), confirmedData)
+        filteredDeathsData = filter(df -> (df."Country/Region" == region), deathsData)
+        filteredVaccinationData = filter(df -> (df."Country/Region" == region), vaccinationData)
         
         map = figure = (
             data = [
