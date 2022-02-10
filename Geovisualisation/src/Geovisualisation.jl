@@ -1,4 +1,7 @@
-using Dash, DashHtmlComponents, DashCoreComponents, DashBootstrapComponents
+module Geovisualisation
+
+using Dash
+using DashBootstrapComponents
 using PlotlyJS
 using Dates
 using DataFrames
@@ -384,4 +387,6 @@ end
 # Run Server
 ###################################
 
-run_server(app, "127.0.0.1", dev_tools_hot_reload=true, debug=true)
+run_server(app, "127.0.0.1", dev_tools_hot_reload=true, debug=true)    
+
+end # module
