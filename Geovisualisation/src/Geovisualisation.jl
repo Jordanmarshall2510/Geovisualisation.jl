@@ -345,10 +345,12 @@ callback!(
             )
         )
         
-        confirmedGraph = plot(
-            filteredConfirmedData, 
-            x=names(filteredConfirmedData[!, 5:ncol(filteredConfirmedData)]), 
-            y=collect(filteredConfirmedData[!, 5:ncol(filteredConfirmedData)][1,:]),
+        confirmedGraph = Plot(
+            [scatter(
+                x=names(filteredConfirmedData[!, 5:ncol(filteredConfirmedData)]),
+                y=collect(filteredConfirmedData[!, 5:ncol(filteredConfirmedData)][1,:])
+                )
+            ], 
             Layout(
                 title="Confirmed Cases Time Series",
                 # plot_bgcolor = "#222",
@@ -356,10 +358,12 @@ callback!(
             )
         )
 
-        deathsGraph = plot(
-            filteredDeathsData, 
-            x=names(filteredDeathsData[!, 5:ncol(filteredDeathsData)]), 
-            y=collect(filteredDeathsData[!, 5:ncol(filteredDeathsData)][1,:]),
+        deathsGraph = Plot(
+            [scatter(
+                x=names(filteredDeathsData[!, 5:ncol(filteredDeathsData)]),
+                y=collect(filteredDeathsData[!, 5:ncol(filteredDeathsData)][1,:])
+                )
+            ], 
             Layout(
                 title="Death Cases Time Series",
                 # plot_bgcolor = "#222",
@@ -367,10 +371,12 @@ callback!(
             )
         )
 
-        vaccinationGraph = plot(
-            filteredVaccinationData, 
-            x=names(filteredVaccinationData[!, 5:ncol(filteredVaccinationData)]), 
-            y=collect(filteredVaccinationData[!, 5:ncol(filteredVaccinationData)][1,:]),
+        vaccinationGraph = Plot(
+            [scatter(
+                x=names(filteredVaccinationData[!, 5:ncol(filteredVaccinationData)]),
+                y=collect(filteredVaccinationData[!, 5:ncol(filteredVaccinationData)][1,:])
+                )
+            ], 
             Layout(
                 title="Vaccination Time Series",
                 # plot_bgcolor = "#222",
