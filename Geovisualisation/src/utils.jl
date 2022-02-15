@@ -141,6 +141,21 @@ end
 # Scatter Map Plot
 ###################
 
+function getCaseFatalityDataframe(confirmedData, deathsData)
+    countries = confirmedData[:,1:3]
+    confirmed = copy(confirmedData)
+    deaths = copy(deathsData)
+    confirmed = select!(confirmed, Not(:1:3))
+    deaths = select!(deaths, Not(:1:3))
+    caseFatality = confirmed ./ deaths
+    for col in eachcol(caseFatality)
+        replace!(col, Inf=>0)
+        replace!(col, NaN=>0)
+    end
+    caseFatalityData = hcat(countries, caseFatality)
+    return caseFatalityData
+end
+
 ###################
 # Search and filter
 ###################

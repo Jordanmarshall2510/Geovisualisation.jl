@@ -29,6 +29,8 @@ startDate = getStartDate(confirmedData)
 # Gets last date of date entry
 endDate = getEndDate(confirmedData)
 
+caseFatility = getCaseFatalityDataframe(confirmedData, deathsData)
+
 # Initial Dash application with dark theme
 app = dash(external_stylesheets = [dbc_themes.DARKLY, dbc_icons.BOOTSTRAP], suppress_callback_exceptions=true)
 
@@ -127,6 +129,7 @@ globalMap=[
         [
             dbc_tab(label = "Confirmed Cases", tab_id = "confirmed-tab"),
             dbc_tab(label = "Death Cases", tab_id = "death-tab"),
+            dbc_tab(label = "Case Fatility", tab_id = "case-fatility-tab"),
         ],
         id = "tabs",
         active_tab = "confirmed-tab",
@@ -278,8 +281,11 @@ callback!(
     elseif tab == "death-tab"
         dataset = deathsData
         colour = "black"
+    elseif tab == "case-fatility-tab"
+        dataset = caseFatility
+        colour = "red"
     end
-
+    
     figure = (
         data = [
             (
