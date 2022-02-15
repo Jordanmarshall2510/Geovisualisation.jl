@@ -1,0 +1,17 @@
+name = "Geovisualisation"
+uuid = "4db7f6ea-a336-44e7-8e7e-2e6864473d00"
+authors = ["Jordan Marshall <47557144+Jordanmarshall2510@users.noreply.github.com>"]
+version = "0.1.0"
+
+[deps]
+CSV = "336ed68f-0bac-5ca0-87d4-7b16caf5d00b"
+Dash = "1b08a953-4be3-4667-9a23-3db579824955"
+DashBootstrapComponents = "1b08a953-4be3-4667-9a23-fa6d05876a1e"
+DashCoreComponents = "1b08a953-4be3-4667-9a23-9da06441d987"
+DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
+Dates = "ade2ca70-3891-5945-98fb-dc099432e06a"
+HTTP = "cd3eb016-35fb-5094-929b-558a96fad6f3"
+Humanize = "7ec9b9c5-1998-51e1-b7fc-fc3590c18259"
+Memoize = "c03570c3-d221-55d1-a50c-7939bbd78826"
+PlotlyJS = "f0f68f2c-4968-5e81-91da-67840de0976a"
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"

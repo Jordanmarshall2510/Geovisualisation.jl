@@ -75,7 +75,7 @@ end
         date = Dates.format(date, "m/d/yy")
         replace!(df[!,date], missing => 0)
         total = sum(df[!,date])
-        if(total > 0)
+        if(total == 0)
             return "No Data Available"
         end
         return digitsep(total)
@@ -92,7 +92,7 @@ end
         date = Dates.format(date, "m/d/yy")
         replace!(df[!,date], missing => 0)
         total = sum(df[!,date])
-        if(total > 0)
+        if(total == 0)
             return "No Data Available"
         end
         return digitsep(total)
@@ -109,7 +109,7 @@ end
         date = Dates.format(date, "m/d/yy")
         replace!(df[!,date], missing => 0)
         total = sum(df[!,date])
-        if(total > 0)
+        if(total == 0)
             return "No Data Available"
         end
         return digitsep(total)
@@ -126,7 +126,7 @@ end
         date = Dates.format(date, "yyyy-mm-dd")
         replace!(df[!,date], missing => 0)
         total = sum(df[!,date])
-        if(total > 0)
+        if(total == 0)
             return "No Data Available"
         end
         return digitsep(total)
@@ -140,6 +140,21 @@ end
 ###################
 # Scatter Map Plot
 ###################
+
+function getCaseFatalityDataframe(confirmedData, deathsData)
+    countries = confirmedData[:,1:3]
+    confirmed = copy(confirmedData)
+    deaths = copy(deathsData)
+    confirmed = select!(confirmed, Not(:1:3))
+    deaths = select!(deaths, Not(:1:3))
+    caseFatality = confirmed ./ deaths
+    for col in eachcol(caseFatality)
+        replace!(col, Inf=>0)
+        replace!(col, NaN=>0)
+    end
+    caseFatalityData = hcat(countries, caseFatality)
+    return caseFatalityData
+end
 
 ###################
 # Search and filter

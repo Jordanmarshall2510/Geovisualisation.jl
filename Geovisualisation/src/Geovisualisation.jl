@@ -1,4 +1,7 @@
-using Dash, DashHtmlComponents, DashCoreComponents, DashBootstrapComponents
+module Geovisualisation
+
+using Dash
+using DashBootstrapComponents
 using PlotlyJS
 using Dates
 using DataFrames
@@ -25,6 +28,8 @@ startDate = getStartDate(confirmedData)
 
 # Gets last date of date entry
 endDate = getEndDate(confirmedData)
+
+caseFatility = getCaseFatalityDataframe(confirmedData, deathsData)
 
 # Initial Dash application with dark theme
 app = dash(external_stylesheets = [dbc_themes.DARKLY, dbc_icons.BOOTSTRAP], suppress_callback_exceptions=true)
@@ -124,6 +129,7 @@ globalMap=[
         [
             dbc_tab(label = "Confirmed Cases", tab_id = "confirmed-tab"),
             dbc_tab(label = "Death Cases", tab_id = "death-tab"),
+            dbc_tab(label = "Case Fatility", tab_id = "case-fatility-tab"),
         ],
         id = "tabs",
         active_tab = "confirmed-tab",
@@ -275,8 +281,11 @@ callback!(
     elseif tab == "death-tab"
         dataset = deathsData
         colour = "black"
+    elseif tab == "case-fatility-tab"
+        dataset = caseFatility
+        colour = "red"
     end
-
+    
     figure = (
         data = [
             (
@@ -342,10 +351,12 @@ callback!(
             )
         )
         
-        confirmedGraph = plot(
-            filteredConfirmedData, 
-            x=names(filteredConfirmedData[!, 5:ncol(filteredConfirmedData)]), 
-            y=collect(filteredConfirmedData[!, 5:ncol(filteredConfirmedData)][1,:]),
+        confirmedGraph = Plot(
+            [scatter(
+                x=names(filteredConfirmedData[!, 5:ncol(filteredConfirmedData)]),
+                y=collect(filteredConfirmedData[!, 5:ncol(filteredConfirmedData)][1,:])
+                )
+            ], 
             Layout(
                 title="Confirmed Cases Time Series",
                 # plot_bgcolor = "#222",
@@ -353,10 +364,12 @@ callback!(
             )
         )
 
-        deathsGraph = plot(
-            filteredDeathsData, 
-            x=names(filteredDeathsData[!, 5:ncol(filteredDeathsData)]), 
-            y=collect(filteredDeathsData[!, 5:ncol(filteredDeathsData)][1,:]),
+        deathsGraph = Plot(
+            [scatter(
+                x=names(filteredDeathsData[!, 5:ncol(filteredDeathsData)]),
+                y=collect(filteredDeathsData[!, 5:ncol(filteredDeathsData)][1,:])
+                )
+            ], 
             Layout(
                 title="Death Cases Time Series",
                 # plot_bgcolor = "#222",
@@ -364,10 +377,12 @@ callback!(
             )
         )
 
-        vaccinationGraph = plot(
-            filteredVaccinationData, 
-            x=names(filteredVaccinationData[!, 5:ncol(filteredVaccinationData)]), 
-            y=collect(filteredVaccinationData[!, 5:ncol(filteredVaccinationData)][1,:]),
+        vaccinationGraph = Plot(
+            [scatter(
+                x=names(filteredVaccinationData[!, 5:ncol(filteredVaccinationData)]),
+                y=collect(filteredVaccinationData[!, 5:ncol(filteredVaccinationData)][1,:])
+                )
+            ], 
             Layout(
                 title="Vaccination Time Series",
                 # plot_bgcolor = "#222",
@@ -384,4 +399,6 @@ end
 # Run Server
 ###################################
 
-run_server(app, "127.0.0.1", dev_tools_hot_reload=true, debug=true)
+run_server(app, "127.0.0.1", dev_tools_hot_reload=true, debug=true)    
+
+end # module
