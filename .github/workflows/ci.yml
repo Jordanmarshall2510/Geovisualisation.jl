@@ -29,8 +29,8 @@ jobs:
         with:
           version: ${{ matrix.julia-version }}
       - name: "Cache Julia Artifacts, Packages and Registry"
-      - uses: julia-actions/cache@v1
+        uses: julia-actions/cache@v1
       - name: "Building Package"
-      - uses: julia-actions/julia-buildpkg@v1
+        uses: julia-actions/julia-buildpkg@v1
       - name: "Running Tests"
-      - uses: julia-actions/julia-runtest@v1
+        uses: julia-actions/julia-runtest@v1
