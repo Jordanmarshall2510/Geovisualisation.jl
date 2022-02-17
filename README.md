@@ -31,7 +31,6 @@ git clone https://github.com/Jordanmarshall2510/FYP-Geographical-Data-Visualiser
 
 Initialise the Julia REPL environment using the Project.toml file:
 ```
-cd Geovisualisation
 julia --project=.
 ```
 
