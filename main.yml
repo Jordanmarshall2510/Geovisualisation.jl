@@ -1,0 +1,39 @@
+# This is a basic workflow to help you get started with Actions
+
+name: CI
+
+# Controls when the workflow will run
+on:
+  # Triggers the workflow on push or pull request events but only for the main branch
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        julia-version: ['^1.6.0-rc1']
+        os: [ubuntu-latest, windows-latest, macOS-latest]
+    
+    steps:
+      - uses: actions/checkout@v1.0.0
+      - name: "Set up Julia"
+        uses: julia-actions/setup-julia@v1
+        with:
+          version: ${{ matrix.julia-version }}
+
+      - name: Build Julia
+        # You may pin to the exact commit or the version.
+        # uses: julia-actions/build-julia@7ad9371ab611d4e8ed024b4a94369afa0b3d4a55
+        uses: julia-actions/build-julia@v1.0.1
+          
+      - name: Run Julia package tests
+        # You may pin to the exact commit or the version.
+        # uses: julia-actions/julia-runtest@161c97cbc529b36fae585928ed5db05b00fdf2bc
+        uses: julia-actions/julia-runtest@v1.7.0
