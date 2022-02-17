@@ -1,6 +1,6 @@
 using Geovisualisation
 using Test
 
-@testset "Tester" begin
+@testset "Geovisualisation.jl" begin
     @test true == true
 end
