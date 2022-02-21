@@ -162,16 +162,22 @@ globalMap=[
 countryGraphs=[
     dbc_row([
         dbc_col(
-            dcc_graph(
-                id="country-map",
-                style = Dict("height"=>"40vh"),
+            dcc_loading(
+                type="default",
+                children=dcc_graph(
+                    id="country-map",
+                    style = Dict("height"=>"40vh"),
+                ),
             ),
             width=5,
         ),
         dbc_col(
-            dcc_graph(
-                id="country-vaccination-graph",
-                style = Dict("height"=>"40vh"),
+            dcc_loading(
+                type="default",
+                children=dcc_graph(
+                    id="country-vaccination-graph",
+                    style = Dict("height"=>"40vh"),
+                ),
             ),
             width=5,
 
@@ -182,16 +188,22 @@ countryGraphs=[
 
     dbc_row([
         dbc_col(
-            dcc_graph(
-                id="country-confirmed-graph",
-                style = Dict("height"=>"40vh"),
+            dcc_loading(
+                type="default",
+                children=dcc_graph(
+                    id="country-confirmed-graph",
+                    style = Dict("height"=>"40vh"),
+                ),
             ),
             width=5,
         ),
         dbc_col(
-            dcc_graph(
-                id="country-deaths-graph",
-                style = Dict("height"=>"40vh"),
+            dcc_loading(
+                type="default",
+                children=dcc_graph(
+                    id="country-deaths-graph",
+                    style = Dict("height"=>"40vh"),
+                ),
             ),
             width=5,
         )
