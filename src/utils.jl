@@ -195,10 +195,3 @@ function formatToDateObject(date)
         return Date(date)
     end
 end
-
-# Converts date object string to date format provided in the dataframe.
-function DateObjectToFormat(date)
-    date = join(collect(date)[3:length(date)])
-    date = split(date,"-")
-    return string(parse(Int64, date[2])) * "/" * string(parse(Int64, date[3])) * "/" * string(parse(Int64, date[1]))
-end
