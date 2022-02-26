@@ -62,6 +62,9 @@ end
         end
     end
     select!(data, Not(:"Province/State"))
+    for i in 4:size(data,2)
+        replace!(data[!,i], missing => 0)
+    end
     return data
 end
 
@@ -71,8 +74,8 @@ end
 
 # Gets total confirmed cases worldwide by summing all countries in dataframe up to specified date. 
 @memoize function getTotalConfirmedCases(df, country, date)
+    date = Dates.format(date, "m/d/yy")
     if country == "Global"
-        date = Dates.format(date, "m/d/yy")
         replace!(df[!,date], missing => 0)
         total = sum(df[!,date])
         if(total == 0)
@@ -80,7 +83,6 @@ end
         end
         return digitsep(total)
     else
-        date = Dates.format(date, "m/d/yy")
         total = df[df."Country/Region" .== country, date]
         return digitsep(total[1])
     end
@@ -88,8 +90,8 @@ end
 
 # Gets total recovered cases worldwide by summing all countries in dataframe up to specified date.
 @memoize function getTotalRecoveredCases(df, country, date)
+    date = Dates.format(date, "m/d/yy")
     if country == "Global"
-        date = Dates.format(date, "m/d/yy")
         replace!(df[!,date], missing => 0)
         total = sum(df[!,date])
         if(total == 0)
@@ -97,7 +99,6 @@ end
         end
         return digitsep(total)
     else
-        date = Dates.format(date, "m/d/yy")
         total = df[df."Country/Region" .== country, date]
         return digitsep(total[1])
     end
@@ -105,8 +106,8 @@ end
 
 # Gets total deaths worldwide by summing all countries in dataframe up to specified date.
 @memoize function getTotalDeaths(df, country, date)
+    date = Dates.format(date, "m/d/yy")
     if country == "Global"
-        date = Dates.format(date, "m/d/yy")
         replace!(df[!,date], missing => 0)
         total = sum(df[!,date])
         if(total == 0)
@@ -114,7 +115,6 @@ end
         end
         return digitsep(total)
     else
-        date = Dates.format(date, "m/d/yy")
         total = df[df."Country/Region" .== country, date]
         return digitsep(total[1])
     end
@@ -122,18 +122,36 @@ end
 
 # Gets total vaccinations worldwide by summing all countries in dataframe.
 @memoize function getTotalVaccinations(df, country, date)
-    if country == "Global"
+    if(date > Date(2020,12,12))
         date = Dates.format(date, "yyyy-mm-dd")
+        if country == "Global"
+            total = sum(df[!,date])
+            if(total == 0)
+                return "No Data Available"
+            end
+            return digitsep(total)
+        else
+            total = df[df."Country/Region" .== country, date]
+            return digitsep(total[1])
+        end
+    end
+    return "Pre-vaccination date selected"
+end
+
+# Gets total vaccinations worldwide by summing all countries in dataframe.
+@memoize function getTotalCaseFatality(df, country, date)
+    if country == "Global"
+        date = Dates.format(date, "m/d/yy")
         replace!(df[!,date], missing => 0)
         total = sum(df[!,date])
         if(total == 0)
             return "No Data Available"
         end
-        return digitsep(total)
+        return round(total; digits=3)
     else
-        date = Dates.format(date, "yyyy-mm-dd")
+        date = Dates.format(date, "m/d/yy")
         total = df[df."Country/Region" .== country, date]
-        return digitsep(total[1])
+        return round(total[1]; digits=3)
     end
 end
 
@@ -178,7 +196,7 @@ end
 
 # Provides end date for date picker.
 function getEndDate(df)
-    date = names(df)[ncol(df)]
+    date = names(df)[end]
     return formatToDateObject(date)
 end
 
