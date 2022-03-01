@@ -20,6 +20,9 @@ deathsData = readGlobalDeathsCSV()
 # Read global vaccination from repo
 vaccinationData = readGlobalVaccinationCSV()
 
+# Calculate case fatality data from confirmed and death data
+caseFatalityData = getCaseFatalityDataframe(confirmedData, deathsData)
+
 # Providing dropdown options of countries
 dropdownOptions = getListOfCountries(confirmedData)
 
@@ -28,8 +31,6 @@ startDate = getStartDate(confirmedData)
 
 # Gets last date of date entry
 endDate = getEndDate(confirmedData)
-
-caseFatility = getCaseFatalityDataframe(confirmedData, deathsData)
 
 # Initial Dash application with dark theme
 app = dash(external_stylesheets = [dbc_themes.DARKLY, dbc_icons.BOOTSTRAP], suppress_callback_exceptions=true)
@@ -66,7 +67,7 @@ controls =[
 ###################
 
 information = [
-    html_h3(id="info-title"),
+    html_h5(id="info-title"),
 
     html_hr(),
 
@@ -115,6 +116,18 @@ information = [
         ],
         body=true,
     ),
+
+    html_br(),
+
+    dbc_card(
+        [
+            dbc_cardbody([
+                html_h5("Case Fatality", className = "card-title"),
+                html_h6(id="totalCaseFatality"),
+            ]),
+        ],
+        body=true,
+    ),
 ]
 
 ###################
@@ -129,32 +142,36 @@ globalMap=[
         [
             dbc_tab(label = "Confirmed Cases", tab_id = "confirmed-tab"),
             dbc_tab(label = "Death Cases", tab_id = "death-tab"),
-            dbc_tab(label = "Case Fatility", tab_id = "case-fatility-tab"),
+            dbc_tab(label = "Case Fatality", tab_id = "case-fatality-tab"),
         ],
         id = "tabs",
         active_tab = "confirmed-tab",
     ),
 
-    dcc_graph(
-        id = "graph-mapbox-plot",
-        style = Dict("height"=>"70vh"),
+    dcc_loading(
+        type="default",
+        children=dcc_graph(
+            id = "graph-mapbox-plot",
+            style = Dict("height"=>"70vh"),
+        ),
     ),
 
     html_hr(),
 
-    # dcc_interval(
-    #     id="auto-stepper",
-    #     interval=1*250, # in milliseconds
-    #     n_intervals=0
-    # ),
+    dbc_row(
+        dbc_col(
+            html_div(id="selected-value-slider"),
+            width="auto"
+        ),
+        justify = "center"
+    ),
 
     dcc_slider(
         id="map-slider",
         min=5,
-        max=ncol(confirmedData),
+        max=size(confirmedData,2),
         step=1,
-        value=ncol(confirmedData),
-        tooltip=Dict("placement"=> "bottom", "always_visible"=>true),
+        value=size(confirmedData,2),
         updatemode="drag",
     ),
 ]
@@ -224,7 +241,7 @@ app.layout = dbc_container(
                 dbc_col(information, width=3),
                 dbc_col(id="graphs", width=9),
             ], 
-            align="center",
+            align="start",
         ),
     ],
     fluid=true,
@@ -247,18 +264,6 @@ callback!(
     end
 end
 
-# callback!(
-#     app,
-#     Output("map-slider", "value"),
-#     Input("auto-stepper", "n_intervals"),
-# )do n_intervals
-#     if isnothing(n_intervals)
-#         return 0
-#     else
-#         return (n_intervals+1) % ncol(confirmedData)
-#     end
-# end
-
 # Update information cards
 callback!(
     app,
@@ -267,23 +272,35 @@ callback!(
     Output("totalRecoveredCases", "children"),
     Output("totalDeaths", "children"),
     Output("totalVaccinations", "children"),
+    Output("totalCaseFatality", "children"),
     Input("date-picker", "date"),
     Input("countries-dropdown", "value"),
 
 ) do date, country
-    if (isnothing(country) == false)
+    if (isnothing(country) == false && isnothing(date) == false)
         date = Date(date)
         title = country * " -\t As of " * string(Dates.format(date, "dd u yyyy"))
-        return title, getTotalConfirmedCases(confirmedData, country, date), getTotalRecoveredCases(recoveredData, country, date), getTotalDeaths(deathsData, country, date), getTotalVaccinations(vaccinationData, country, date)
+        return  title, 
+                getTotalConfirmedCases(confirmedData, country, date),
+                getTotalRecoveredCases(recoveredData, country, date),
+                getTotalDeaths(deathsData, country, date),
+                getTotalVaccinations(vaccinationData, country, date),
+                getTotalCaseFatality(caseFatalityData, country, date)
     else
-        return "Please select an option from the dropdown menu", "No Data Available", "No Data Available", "No Data Available", "No Data Available"
+        return  "Please select an option from the dropdown menu",
+                "No Data Available",
+                "No Data Available",
+                "No Data Available",
+                "No Data Available",
+                "No Data Available"
     end
 end
 
 # Change graph using slider.
 callback!(
     app, 
-    Output("graph-mapbox-plot", "figure"), 
+    Output("graph-mapbox-plot", "figure"),
+    Output("selected-value-slider", "children"), 
     Input("map-slider", "value"),
     Input("tabs", "active_tab"),
     ) do sliderInput, tab
@@ -293,11 +310,15 @@ callback!(
     elseif tab == "death-tab"
         dataset = deathsData
         colour = "black"
-    elseif tab == "case-fatility-tab"
-        dataset = caseFatility
+    elseif tab == "case-fatality-tab"
+        dataset = caseFatalityData
         colour = "red"
     end
-    
+
+    sliderDict = Dict(collect(4:size(confirmedData,2)) .=> names(confirmedData)[4:size(confirmedData,2)])
+    sliderDate = Date(sliderDict[sliderInput], "mm/dd/yy")
+    sliderDateFormat = Dates.format(sliderDate, "dd U yy")
+
     figure = (
         data = [
             (
@@ -318,7 +339,7 @@ callback!(
             margin=Dict("r"=>0,"t"=>0,"l"=>0,"b"=>0),
         )
     )
-    return figure
+    return figure, sliderDateFormat
 end
 
 # Changes country graphs on selection
@@ -365,8 +386,8 @@ callback!(
         
         confirmedGraph = Plot(
             [scatter(
-                x=names(filteredConfirmedData[!, 5:ncol(filteredConfirmedData)]),
-                y=collect(filteredConfirmedData[!, 5:ncol(filteredConfirmedData)][1,:])
+                x=names(filteredConfirmedData[!, 4:end]),
+                y=collect(filteredConfirmedData[!, 4:end][1,:])
                 )
             ], 
             Layout(
@@ -378,8 +399,8 @@ callback!(
 
         deathsGraph = Plot(
             [scatter(
-                x=names(filteredDeathsData[!, 5:ncol(filteredDeathsData)]),
-                y=collect(filteredDeathsData[!, 5:ncol(filteredDeathsData)][1,:])
+                x=names(filteredDeathsData[!, 4:end]),
+                y=collect(filteredDeathsData[!, 4:end][1,:])
                 )
             ], 
             Layout(
@@ -391,8 +412,8 @@ callback!(
 
         vaccinationGraph = Plot(
             [scatter(
-                x=names(filteredVaccinationData[!, 5:ncol(filteredVaccinationData)]),
-                y=collect(filteredVaccinationData[!, 5:ncol(filteredVaccinationData)][1,:])
+                x=names(filteredVaccinationData[!, 4:end]),
+                y=collect(filteredVaccinationData[!, 4:end][1,:])
                 )
             ], 
             Layout(
