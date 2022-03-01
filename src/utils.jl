@@ -122,7 +122,7 @@ end
 
 # Gets total vaccinations worldwide by summing all countries in dataframe.
 @memoize function getTotalVaccinations(df, country, date)
-    if(date > Date(2020,12,12))
+    if(date >= Date(2020,12,12))
         date = Dates.format(date, "yyyy-mm-dd")
         if country == "Global"
             total = sum(df[!,date])
