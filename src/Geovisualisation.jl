@@ -39,35 +39,59 @@ app = dash(external_stylesheets = [dbc_themes.DARKLY, dbc_icons.BOOTSTRAP], supp
 # Search and filter
 ###################
 
-controls =[
+controls = dbc_row([
+    dbc_col(
+        dbc_select(
+            id="countries-dropdown",
+            options = dropdownOptions,
+            value="Global",
+            style = Dict("color" => "black"),
+        ),
+        width="6",
+    ), 
+
     dbc_col(
         dcc_datepickersingle(
             id = "date-picker",
             min_date_allowed = startDate,
             max_date_allowed = endDate,
             date = endDate,
-            display_format="Do MMM YY"
+            display_format="Do MMM YY",
         ),
-        width="auto",
+        style = Dict("padding-left" => "10px"),
+        width="6",
     ),
+],
+className = "g-0 ms-auto flex-nowrap mt-3 mt-md-0",
+)
 
-    dbc_col(
-        dcc_dropdown(
-            id="countries-dropdown",
-            options = dropdownOptions,
-            value="Global",
-            style = Dict("color" => "black"),
+navbar = dbc_navbar(
+    dbc_container([
+        html_a(
+            dbc_row(
+                [
+                    dbc_col(dbc_navbarbrand("COVID-19 Geovisualisation", className = "ms-2")),
+                ],
+                align = "center",
+                className = "g-0",
+            ),
+            style = Dict("textDecoration" => "none"),
         ),
-        width="5",
-    ), 
-]
+        dbc_collapse(controls, id = "navbar-collapse", is_open = false, navbar = true),
+    ]),
+    color = "primary",
+    dark = true,
+)
 
 ###################
 # Information Cards
 ###################
 
 information = [
-    html_h5(id="info-title"),
+    html_div(
+        html_h5(id="info-title"),
+        style = Dict("padding-top" => "8px", "padding-bottom" => "2px"),
+    ),
 
     html_hr(),
 
@@ -128,16 +152,15 @@ information = [
         ],
         body=true,
     ),
+
+    html_hr(),
 ]
 
 ###################
 # Scatter Map Graph
 ###################
 
-# Refer to https://plotly.com/javascript/mapbox-layers/ for mapbox parameters
-
 globalMap=[
-
     dbc_tabs(
         [
             dbc_tab(label = "Confirmed Cases", tab_id = "confirmed-tab"),
@@ -148,12 +171,11 @@ globalMap=[
         active_tab = "confirmed-tab",
     ),
 
-    dcc_loading(
-        type="default",
-        children=dcc_graph(
-            id = "graph-mapbox-plot",
-            style = Dict("height"=>"70vh"),
-        ),
+    html_hr(),
+    
+    dcc_graph(
+        id = "graph-mapbox-plot",
+        style = Dict("height"=>"722px"),
     ),
 
     html_hr(),
@@ -230,12 +252,10 @@ countryGraphs=[
 app.layout = dbc_container(
     [
         dbc_row(
-            dbc_col(html_h3("COVID-19 Geographical Visualiser"), width="auto"),
-            justify="center",
+            navbar, 
+            justify = "center",
+            style = Dict("padding-bottom" => "15px"),
         ),
-        html_hr(),
-        dbc_row(controls, justify = "center"),
-        html_hr(),
         dbc_row(
             [
                 dbc_col(information, width=3),
@@ -387,7 +407,7 @@ callback!(
         confirmedGraph = Plot(
             [scatter(
                 x=names(filteredConfirmedData[!, 4:end]),
-                y=collect(filteredConfirmedData[!, 4:end][1,:])
+                y=convertTimeSeriesData(collect(filteredConfirmedData[!, 4:end][1,:]))
                 )
             ], 
             Layout(
@@ -400,7 +420,7 @@ callback!(
         deathsGraph = Plot(
             [scatter(
                 x=names(filteredDeathsData[!, 4:end]),
-                y=collect(filteredDeathsData[!, 4:end][1,:])
+                y=convertTimeSeriesData(collect(filteredDeathsData[!, 4:end][1,:]))
                 )
             ], 
             Layout(
@@ -413,7 +433,7 @@ callback!(
         vaccinationGraph = Plot(
             [scatter(
                 x=names(filteredVaccinationData[!, 4:end]),
-                y=collect(filteredVaccinationData[!, 4:end][1,:])
+                y=convertTimeSeriesData(collect(filteredVaccinationData[!, 4:end][1,:]))
                 )
             ], 
             Layout(
@@ -436,5 +456,7 @@ end
 function runGeovisualiser()
     run_server(app, "127.0.0.1", dev_tools_hot_reload=true, debug=true)     
 end
+
+runGeovisualiser()
 
 end # module

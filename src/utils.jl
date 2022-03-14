@@ -213,3 +213,18 @@ function formatToDateObject(date)
         return Date(date)
     end
 end
+
+# Converts array of integer timeseries data into regular values.
+function convertTimeSeriesData(data)
+    finalData = []
+    for (index, value) in enumerate(data)
+        if(index != 1)
+            finalValue = value - data[index-1]
+            if(finalValue < 0) 
+                finalValue = 0
+            end
+            push!(finalData, finalValue)
+        end
+    end
+    return finalData
+end
