@@ -45,7 +45,7 @@ controls = dbc_row([
             id="countries-dropdown",
             options = dropdownOptions,
             value="Global",
-            style = Dict("color" => "black"),
+            style = Dict("color" => "black", "height" => "48px", "font-size" => "15px"),
         ),
         width="6",
     ), 
@@ -70,7 +70,7 @@ navbar = dbc_navbar(
         html_a(
             dbc_row(
                 [
-                    dbc_col(dbc_navbarbrand("COVID-19 Geovisualisation", className = "ms-2")),
+                    dbc_col(html_h3("COVID-19 Geovisualisation")),
                 ],
                 align = "center",
                 className = "g-0",
@@ -98,9 +98,13 @@ information = [
     dbc_card(
         [
             dbc_cardbody([
-                html_h5("Confirmed Cases", className = "card-title"),
+                html_h5("Confirmed Cases", className = "card-title", id = "confirmedTooltip"),
                 html_h6(id="totalConfirmedCases"),
             ]),
+            dbc_tooltip(
+                "Confirmed cases is the total amount of individuals that were infected by COVID-19.",
+                target = "confirmedTooltip",
+            ),
         ],
         body=true,
     ),
@@ -110,9 +114,13 @@ information = [
     dbc_card(
         [
             dbc_cardbody([
-                html_h5("Recovered Cases", className = "card-title"),
+                html_h5("Recovered Cases", className = "card-title", id = "recoveredTooltip"),
                 html_h6(id="totalRecoveredCases"),
             ]),
+            dbc_tooltip(
+                "Recovered cases is the total amount of individuals that were infected by COVID-19 and are now fully recovered from the disease.",
+                target = "recoveredTooltip",
+            ),
         ],
         body=true,
     ),
@@ -122,9 +130,13 @@ information = [
     dbc_card(
         [
             dbc_cardbody([
-                html_h5("Deaths", className = "card-title"),
+                html_h5("Deaths", className = "card-title", id = "deathsTooltip"),
                 html_h6(id="totalDeaths"),
             ]),
+            dbc_tooltip(
+                "Deaths is the total amount of individuals that passed away due to being infected by COVID-19.",
+                target = "deathsTooltip",
+            ),
         ],
         body=true,
     ),
@@ -134,9 +146,13 @@ information = [
     dbc_card(
         [
             dbc_cardbody([
-                html_h5("Vaccines Administered", className = "card-title"),
+                html_h5("Vaccines Administered", className = "card-title", id = "vaccinesTooltip"),
                 html_h6(id="totalVaccinations"),
             ]),
+            dbc_tooltip(
+                "Vaccines administered is the total amount of vaccines administered to individuals.",
+                target = "vaccinesTooltip",
+            ),
         ],
         body=true,
     ),
@@ -146,14 +162,23 @@ information = [
     dbc_card(
         [
             dbc_cardbody([
-                html_h5("Case Fatality", className = "card-title"),
+                html_h5("Case Fatality Rate", className = "card-title", id = "caseFatalityRateTooltip"),
                 html_h6(id="totalCaseFatality"),
             ]),
+            dbc_tooltip(
+                "Case fatality rate is the proportion of people diagnosed with COVID-19 who die from that disease.",
+                target = "caseFatalityRateTooltip",
+            ),
         ],
         body=true,
     ),
 
     html_hr(),
+    
+    html_div(
+        html_h6(id="slider-instructions"),
+        style = Dict("padding-top" => "8px", "padding-bottom" => "2px"),
+    ),
 ]
 
 ###################
@@ -203,50 +228,77 @@ countryGraphs=[
         dbc_col(
             dcc_loading(
                 type="default",
-                children=dcc_graph(
-                    id="country-map",
-                    style = Dict("height"=>"40vh"),
-                ),
+                children=[
+                    html_div(
+                        html_h5("Country"),
+                        style = Dict("padding-top" => "8px", "padding-bottom" => "2px"),
+                    ),
+                    html_hr(),
+                    dcc_graph(
+                        id="country-map",
+                        style = Dict("height"=>"35vh"),
+                    )
+                ],
             ),
-            width=5,
+            width=6,
         ),
         dbc_col(
             dcc_loading(
                 type="default",
-                children=dcc_graph(
-                    id="country-vaccination-graph",
-                    style = Dict("height"=>"40vh"),
-                ),
+                children=[
+                    html_div(
+                        html_h5("Vaccination"),
+                        style = Dict("padding-top" => "8px", "padding-bottom" => "2px"),
+                    ),
+                    html_hr(),
+                    dcc_graph(
+                        id="country-vaccination-graph",
+                        style = Dict("height"=>"35vh"),
+                    )
+                ],
             ),
-            width=5,
+            width=6,
 
         )
     ], justify = "center"),
-
     html_hr(),
-
     dbc_row([
         dbc_col(
             dcc_loading(
                 type="default",
-                children=dcc_graph(
-                    id="country-confirmed-graph",
-                    style = Dict("height"=>"40vh"),
-                ),
+                children=[
+                    html_div(
+                        html_h5("Confirmed"),
+                        style = Dict("padding-top" => "8px", "padding-bottom" => "2px"),
+                    ),
+                    html_hr(),
+                    dcc_graph(
+                        id="country-confirmed-graph",
+                        style = Dict("height"=>"35vh"),
+                    )
+                ],
             ),
-            width=5,
+            width=6,
         ),
         dbc_col(
             dcc_loading(
                 type="default",
-                children=dcc_graph(
-                    id="country-deaths-graph",
-                    style = Dict("height"=>"40vh"),
-                ),
+                children=[
+                    html_div(
+                        html_h5("Deaths"),
+                        style = Dict("padding-top" => "8px", "padding-bottom" => "2px"),
+                    ),
+                    html_hr(),
+                    dcc_graph(
+                        id="country-deaths-graph",
+                        style = Dict("height"=>"35vh"),
+                    )
+                ],
             ),
-            width=5,
+            width=6,
         )
     ], justify = "center"),
+    html_hr(),
 ]
 
 app.layout = dbc_container(
@@ -264,6 +316,7 @@ app.layout = dbc_container(
             align="start",
         ),
     ],
+    style = Dict("height"=>"100vh"),
     fluid=true,
 )
 
@@ -275,12 +328,13 @@ app.layout = dbc_container(
 callback!(
     app,
     Output("graphs", "children"),
+    Output("slider-instructions", "children"),
     Input("countries-dropdown", "value"),
 ) do  country
     if country == "Global"
-        return globalMap
+        return globalMap, "Drag the slider to interact with the COVID-19 global scatter plot. Select one of the tabs above the plot to change the data attribute"
     else
-        return countryGraphs
+        return countryGraphs, ""
     end
 end
 
@@ -374,7 +428,6 @@ callback!(
     if (isnothing(region) == false) && (region != "Global")
         filteredConfirmedData = filter(df -> (df."Country/Region" == region), confirmedData)
         filteredDeathsData = filter(df -> (df."Country/Region" == region), deathsData)
-        filteredVaccinationData = filter(df -> (df."Country/Region" == region), vaccinationData)
         
         map = figure = (
             data = [
@@ -410,11 +463,6 @@ callback!(
                 y=convertTimeSeriesData(collect(filteredConfirmedData[!, 4:end][1,:]))
                 )
             ], 
-            Layout(
-                title="Confirmed Cases Time Series",
-                # plot_bgcolor = "#222",
-                # paper_bgcolor = "#222",
-            )
         )
 
         deathsGraph = Plot(
@@ -423,27 +471,22 @@ callback!(
                 y=convertTimeSeriesData(collect(filteredDeathsData[!, 4:end][1,:]))
                 )
             ], 
-            Layout(
-                title="Death Cases Time Series",
-                # plot_bgcolor = "#222",
-                # paper_bgcolor = "#222",
-            )
         )
-
-        vaccinationGraph = Plot(
-            [scatter(
-                x=names(filteredVaccinationData[!, 4:end]),
-                y=convertTimeSeriesData(collect(filteredVaccinationData[!, 4:end][1,:]))
-                )
-            ], 
-            Layout(
-                title="Vaccination Time Series",
-                # plot_bgcolor = "#222",
-                # paper_bgcolor = "#222",
+        
+        filteredVaccinationData = filter(df -> (df."Country/Region" == region), vaccinationData)
+        if(size(filteredVaccinationData, 1) > 0)
+            vaccinationGraph = Plot(
+                [scatter(
+                    x=names(filteredVaccinationData[!, 4:end]),
+                    y=convertTimeSeriesData(collect(filteredVaccinationData[!, 4:end][1,:]))
+                    )
+                ], 
             )
-        )
 
-        return map, confirmedGraph, vaccinationGraph, deathsGraph
+            return map, vaccinationGraph, confirmedGraph, deathsGraph
+        else
+            return map, no_update(), confirmedGraph, deathsGraph
+        end
     end
     return no_update(), no_update(), no_update(), no_update()
 end

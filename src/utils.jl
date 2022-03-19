@@ -84,7 +84,11 @@ end
         return digitsep(total)
     else
         total = df[df."Country/Region" .== country, date]
-        return digitsep(total[1])
+        if(isempty(total))
+            return "No Data Available"
+        else
+            return digitsep(total[1])
+        end
     end
 end
 
@@ -100,7 +104,11 @@ end
         return digitsep(total)
     else
         total = df[df."Country/Region" .== country, date]
-        return digitsep(total[1])
+        if(isempty(total) || total == 0)
+            return "No Data Available"
+        else
+            return digitsep(total[1])
+        end
     end
 end
 
@@ -116,7 +124,11 @@ end
         return digitsep(total)
     else
         total = df[df."Country/Region" .== country, date]
-        return digitsep(total[1])
+        if(isempty(total))
+            return "No Data Available"
+        else
+            return digitsep(total[1])
+        end
     end
 end
 
@@ -132,7 +144,11 @@ end
             return digitsep(total)
         else
             total = df[df."Country/Region" .== country, date]
-            return digitsep(total[1])
+            if(isempty(total))
+                return "No Data Available"
+            else
+                return digitsep(total[1])
+            end
         end
     end
     return "Pre-vaccination date selected"
