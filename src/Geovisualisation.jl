@@ -544,6 +544,4 @@ function runGeovisualiser()
     run_server(app, "127.0.0.1", dev_tools_hot_reload=true, debug=true)     
 end
 
-runGeovisualiser()
-
 end # module
