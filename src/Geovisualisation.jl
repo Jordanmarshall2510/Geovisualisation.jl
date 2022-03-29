@@ -39,48 +39,30 @@ app = dash(external_stylesheets = [dbc_themes.DARKLY, dbc_icons.BOOTSTRAP], supp
 # Search and filter
 ###################
 
-controls = dbc_row([
-    dbc_col(
-        dbc_select(
-            id="countries-dropdown",
-            options = dropdownOptions,
-            value="Global",
-            style = Dict("color" => "black", "height" => "48px", "font-size" => "15px"),
-        ),
-        width="6",
-    ), 
-
-    dbc_col(
-        dcc_datepickersingle(
-            id = "date-picker",
-            min_date_allowed = startDate,
-            max_date_allowed = endDate,
-            date = endDate,
-            display_format="Do MMM YY",
-        ),
-        style = Dict("padding-left" => "10px"),
-        width="6",
-    ),
-],
-className = "g-0 ms-auto flex-nowrap mt-3 mt-md-0",
-)
-
-navbar = dbc_navbar(
-    dbc_container([
-        html_a(
-            dbc_row(
-                [
-                    dbc_col(html_h3("COVID-19 Geovisualisation")),
-                ],
-                align = "center",
-                className = "g-0",
+controls = dbc_row(
+    [
+        dbc_col(
+            dbc_select(
+                id="countries-dropdown",
+                options = dropdownOptions,
+                value="Global",
+                style = Dict("color" => "black", "height" => "48px"),
             ),
-            style = Dict("textDecoration" => "none"),
+            width="6",
+        ), 
+
+        dbc_col(
+            dcc_datepickersingle(
+                id = "date-picker",
+                min_date_allowed = startDate,
+                max_date_allowed = endDate,
+                date = endDate,
+                display_format="Do MMM YY",
+            ),
+            style = Dict("padding-left" => "10px"),
+            width="6",
         ),
-        dbc_collapse(controls, id = "navbar-collapse", is_open = false, navbar = true),
-    ]),
-    color = "primary",
-    dark = true,
+    ],
 )
 
 ###################
@@ -88,96 +70,110 @@ navbar = dbc_navbar(
 ###################
 
 information = [
-    html_div(
+    dbc_row(
         html_h5(id="info-title"),
-        style = Dict("padding-top" => "8px", "padding-bottom" => "2px"),
+        style=Dict("height"=> "5%"),
     ),
 
-    html_hr(),
-
-    dbc_card(
+    dbc_row(
         [
-            dbc_cardbody([
-                html_h5("Confirmed Cases", className = "card-title", id = "confirmedTooltip"),
-                html_h6(id="totalConfirmedCases"),
-            ]),
+            dbc_card(
+                dbc_cardbody([
+                    html_h5("Confirmed Cases", className = "card-title"),
+                    html_h6(id="totalConfirmedCases"),
+                ]),
+                id = "confirmedTooltip",
+            ),
             dbc_tooltip(
                 "Confirmed cases is the total amount of individuals that were infected by COVID-19.",
                 target = "confirmedTooltip",
             ),
         ],
-        body=true,
+        style=Dict("height"=> "15%"),
     ),
 
-    html_br(),
+    dbc_row(style=Dict("height"=> "2.5%")),
 
-    dbc_card(
+    dbc_row(
         [
-            dbc_cardbody([
-                html_h5("Recovered Cases", className = "card-title", id = "recoveredTooltip"),
-                html_h6(id="totalRecoveredCases"),
-            ]),
+            dbc_card(
+                dbc_cardbody([
+                    html_h5("Recovered Cases", className = "card-title"),
+                    html_h6(id="totalRecoveredCases"),
+                ]),
+                id = "recoveredTooltip",
+            ),
             dbc_tooltip(
                 "Recovered cases is the total amount of individuals that were infected by COVID-19 and are now fully recovered from the disease.",
                 target = "recoveredTooltip",
             ),
         ],
-        body=true,
+        style=Dict("height"=> "15%"),
     ),
 
-    html_br(),
+    dbc_row(style=Dict("height"=> "2.5%")),
 
-    dbc_card(
+    dbc_row(
         [
-            dbc_cardbody([
-                html_h5("Deaths", className = "card-title", id = "deathsTooltip"),
-                html_h6(id="totalDeaths"),
-            ]),
+            dbc_card(
+                dbc_cardbody([
+                    html_h5("Deaths", className = "card-title"),
+                    html_h6(id="totalDeaths"),
+                ]),
+                id = "deathsTooltip",
+            ),
             dbc_tooltip(
                 "Deaths is the total amount of individuals that passed away due to being infected by COVID-19.",
                 target = "deathsTooltip",
             ),
         ],
-        body=true,
+        style=Dict("height"=> "15%"),
     ),
 
-    html_br(),
+    dbc_row(style=Dict("height"=> "2.5%")),
 
-    dbc_card(
+    dbc_row(
         [
-            dbc_cardbody([
-                html_h5("Vaccines Administered", className = "card-title", id = "vaccinesTooltip"),
-                html_h6(id="totalVaccinations"),
-            ]),
+            dbc_card(
+                dbc_cardbody([
+                    html_h5("Vaccines Administered", className = "card-title"),
+                    html_h6(id="totalVaccinations"),
+                ]),
+                id = "vaccinesTooltip",
+            ),
             dbc_tooltip(
                 "Vaccines administered is the total amount of vaccines administered to individuals.",
                 target = "vaccinesTooltip",
             ),
         ],
-        body=true,
+        style=Dict("height"=> "15%"),
     ),
 
-    html_br(),
+    dbc_row(style=Dict("height"=> "2.5%")),
 
-    dbc_card(
+    dbc_row(
         [
-            dbc_cardbody([
-                html_h5("Case Fatality Rate", className = "card-title", id = "caseFatalityRateTooltip"),
-                html_h6(id="totalCaseFatality"),
-            ]),
+            dbc_card(
+                dbc_cardbody([
+                    html_h5("Case Fatality Rate", className = "card-title"),
+                    html_h6(id="totalCaseFatality"),
+                ]),
+                id = "caseFatalityRateTooltip",
+            ),
             dbc_tooltip(
                 "Case fatality rate is the proportion of people diagnosed with COVID-19 who die from that disease.",
                 target = "caseFatalityRateTooltip",
             ),
         ],
-        body=true,
+        style=Dict("height"=> "15%"),
     ),
 
-    html_hr(),
-    
-    html_div(
-        html_h6(id="slider-instructions"),
-        style = Dict("padding-top" => "8px", "padding-bottom" => "2px"),
+    dbc_row(
+        dbc_col(
+            html_h6(id="slider-instructions"),
+        ),
+        align="center",
+        style=Dict("height"=> "10%"),
     ),
 ]
 
@@ -186,134 +182,182 @@ information = [
 ###################
 
 globalMap=[
-    dbc_tabs(
-        [
-            dbc_tab(label = "Confirmed Cases", tab_id = "confirmed-tab"),
-            dbc_tab(label = "Death Cases", tab_id = "death-tab"),
-            dbc_tab(label = "Case Fatality", tab_id = "case-fatality-tab"),
-        ],
-        id = "tabs",
-        active_tab = "confirmed-tab",
+    dbc_row(
+        dbc_tabs(
+            [
+                dbc_tab(label = "Confirmed Cases", tab_id = "confirmed-tab"),
+                dbc_tab(label = "Death Cases", tab_id = "death-tab"),
+                dbc_tab(label = "Case Fatality Rate", tab_id = "case-fatality-tab"),
+            ],
+            id = "tabs",
+            active_tab = "confirmed-tab",
+        ),
+        style=Dict("height"=> "5%"),
     ),
-
-    html_hr(),
     
-    dcc_graph(
-        id = "graph-mapbox-plot",
-        style = Dict("height"=>"722px"),
+    dbc_row(
+        dcc_graph(
+            id = "graph-mapbox-plot",
+        ),
+        style=Dict("height"=> "85%"),
     ),
-
-    html_hr(),
 
     dbc_row(
         dbc_col(
             html_div(id="selected-value-slider"),
             width="auto"
         ),
-        justify = "center"
+        justify = "center",
+        style=Dict("height"=> "5%"),
     ),
 
-    dcc_slider(
-        id="map-slider",
-        min=5,
-        max=size(confirmedData,2),
-        step=1,
-        value=size(confirmedData,2),
-        updatemode="drag",
+    dbc_row(
+        dbc_col(
+            dcc_slider(
+                id="map-slider",
+                min=5,
+                max=size(confirmedData,2),
+                step=1,
+                value=size(confirmedData,2),
+                updatemode="drag",
+            ),
+            width=12,
+        ),
+        style=Dict("height"=> "5%"),
     ),
 ]
 
 countryGraphs=[
-    dbc_row([
-        dbc_col(
-            dcc_loading(
-                type="default",
-                children=[
-                    html_div(
-                        html_h5("Country"),
-                        style = Dict("padding-top" => "8px", "padding-bottom" => "2px"),
-                    ),
-                    html_hr(),
-                    dcc_graph(
-                        id="country-map",
-                        style = Dict("height"=>"35vh"),
-                    )
-                ],
+    dbc_row(
+        [
+            dbc_col(
+                html_h5("Country"),
+                width=6,
             ),
-            width=6,
-        ),
-        dbc_col(
-            dcc_loading(
-                type="default",
-                children=[
-                    html_div(
-                        html_h5("Vaccination"),
-                        style = Dict("padding-top" => "8px", "padding-bottom" => "2px"),
-                    ),
-                    html_hr(),
-                    dcc_graph(
-                        id="country-vaccination-graph",
-                        style = Dict("height"=>"35vh"),
-                    )
-                ],
+            dbc_col(
+                html_h5("Vaccination Administered"),
+                width=6,
             ),
-            width=6,
+        ],
+        style = Dict("height"=>"5%"),
+    ),
 
-        )
-    ], justify = "center"),
-    html_hr(),
-    dbc_row([
-        dbc_col(
-            dcc_loading(
+    dbc_row(
+        [
+            dbc_col(
+                dcc_loading(
                 type="default",
-                children=[
-                    html_div(
-                        html_h5("Confirmed"),
-                        style = Dict("padding-top" => "8px", "padding-bottom" => "2px"),
-                    ),
-                    html_hr(),
-                    dcc_graph(
-                        id="country-confirmed-graph",
-                        style = Dict("height"=>"35vh"),
-                    )
-                ],
+                    children=[
+                        dcc_graph(
+                            id="country-map",
+                            style = Dict("height"=>"35vh"),
+                        )
+                    ],
+                ),
+                width=6,
             ),
-            width=6,
-        ),
-        dbc_col(
-            dcc_loading(
-                type="default",
-                children=[
-                    html_div(
-                        html_h5("Deaths"),
-                        style = Dict("padding-top" => "8px", "padding-bottom" => "2px"),
-                    ),
-                    html_hr(),
-                    dcc_graph(
-                        id="country-deaths-graph",
-                        style = Dict("height"=>"35vh"),
-                    )
-                ],
+            dbc_col(
+                dcc_loading(
+                    type="default",
+                    children=[
+                        dcc_graph(
+                            id="country-vaccination-graph",
+                            style = Dict("height"=>"35vh"),
+                        )
+                    ],
+                ),
+                width=6,
             ),
-            width=6,
-        )
-    ], justify = "center"),
-    html_hr(),
+        ],
+        style = Dict("height"=>"40%"),
+    ),
+
+    dbc_row(
+        [
+            dbc_col(
+                html_h5("Confirmed Cases"),
+                width=6,
+            ),
+            dbc_col(
+                html_h5("Deaths"),
+                width=6,
+            ),
+        ],
+        style = Dict("height"=>"5%"),
+    ),
+
+    dbc_row(
+        [
+            dbc_col(
+                dcc_loading(
+                    type="default",
+                    children=[
+                        dcc_graph(
+                            id="country-confirmed-graph",
+                            style = Dict("height"=>"36vh"),
+                        )
+                    ],
+                ),
+                width=6,
+            ),
+            dbc_col(
+                dcc_loading(
+                    type="default",
+                    children=[
+                        dcc_graph(
+                            id="country-deaths-graph",
+                            style = Dict("height"=>"36vh"),
+                        )
+                    ],
+                ),
+                width=6,
+            ),
+        ],
+        style = Dict("height"=>"40%"),
+    ),
+
+    dbc_row(
+        style = Dict("height"=>"10%"), 
+    ),
 ]
 
 app.layout = dbc_container(
     [
-        dbc_row(
-            navbar, 
-            justify = "center",
-            style = Dict("padding-bottom" => "15px"),
-        ),
+        # Navbar
         dbc_row(
             [
-                dbc_col(information, width=3),
-                dbc_col(id="graphs", width=9),
+                dbc_col(
+                    html_h3("COVID-19 Geovisualiser"),
+                    width=3,
+                ),
+                dbc_col(
+                    html_h6("Data provided by Center for Systems Science and Engineering (CSSE) at Johns Hopkins University"),
+                    width=5,
+                ),
+                dbc_col(
+                    controls,
+                    width=4,
+                ),
+            ],
+            align="center",
+            style = Dict("height"=>"6%", "padding-left" => "1%", "background-color"=> "blue"),
+        ),
+        
+        # Body
+        dbc_row(
+            [
+                dbc_col(
+                    information, 
+                    width=3,
+                    style=Dict("height"=> "100%", "padding-right"=>"2%"),
+                ),
+                dbc_col(
+                    id="graphs",
+                    width=9,
+                    style=Dict("height"=> "100%"),
+                ),
             ], 
-            align="start",
+            style = Dict("height"=>"94%", "padding"=>"1%"),
         ),
     ],
     style = Dict("height"=>"100vh"),
@@ -413,7 +457,7 @@ callback!(
             margin=Dict("r"=>0,"t"=>0,"l"=>0,"b"=>0),
         )
     )
-    return figure, sliderDateFormat
+    return figure, "Selected Date: " * sliderDateFormat
 end
 
 # Changes country graphs on selection
