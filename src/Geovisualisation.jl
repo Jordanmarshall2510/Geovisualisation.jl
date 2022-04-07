@@ -6,6 +6,8 @@ using PlotlyJS
 using Dates
 using DataFrames
 
+export runGeovisualiser
+
 include("utils.jl")
 
 # Read global confirmed cases from repo
@@ -540,8 +542,11 @@ end
 ###################################
 
 # Runs local server. Call in REPL.
+"""
+    runGeovisualiser()
+"""
 function runGeovisualiser()
-    run_server(app, "127.0.0.1", dev_tools_hot_reload=true, debug=true)     
+    run_server(app, "127.0.0.1", dev_tools_hot_reload=true, debug=false)     
 end
 
 end # module

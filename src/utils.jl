@@ -6,11 +6,33 @@ using Memoize
 
 import Humanize: digitsep
 
+export readGlobalConfirmedCSV
+export readGlobalDeathsCSV
+export readGlobalRecoveredCSV
+export readGlobalVaccinationCSV
+export getTotalConfirmedCases
+export getTotalRecoveredCases
+export getTotalDeaths
+export getTotalVaccinations
+export getTotalCaseFatality
+export getCaseFatalityDataframe
+export getListOfCountries
+export getStartDate
+export getEndDate
+export formatToDateObject
+export convertTimeSeriesData
+
 #################
 # Reading of Date
 #################
 
-# Reads time series COVID-19 global confirmed cases raw CSV file from repository.
+"""
+    readGlobalConfirmedCSV()
+
+Reads time series COVID-19 global confirmed cases raw CSV file from repository.
+
+Returns dataframe of global confirmed cases.
+"""
 @memoize function readGlobalConfirmedCSV()
     url = HTTP.get("https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_confirmed_global.csv")
     data = CSV.read(url.body, DataFrame)
@@ -23,7 +45,13 @@ import Humanize: digitsep
     return data
 end
 
-# Reads time series COVID-19 global deaths raw CSV file from repository.
+"""
+    readGlobalDeathsCSV()
+
+Reads time series COVID-19 global deaths raw CSV file from repository.
+
+Returns dataframe of global death cases.
+"""
 @memoize function readGlobalDeathsCSV()
     url = HTTP.get("https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_deaths_global.csv")
     data = CSV.read(url.body, DataFrame)
@@ -36,7 +64,13 @@ end
     return data
 end
 
-# Reads time series COVID-19 global recovered cases raw CSV file from repository.
+"""
+    readGlobalRecoveredCSV
+
+Reads time series COVID-19 global recovered cases raw CSV file from repository.
+
+Returns dataframe of global recovered cases.
+"""
 @memoize function readGlobalRecoveredCSV()
     url = HTTP.get("https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_recovered_global.csv")
     data = CSV.read(url.body, DataFrame)
@@ -49,7 +83,14 @@ end
     return data
 end
 
-# Reads time series COVID-19 global recovered cases raw CSV file from repository.
+
+"""
+    readGlobalVaccinationCSV    
+
+Reads time series COVID-19 global recovered cases raw CSV file from repository.
+
+Returns dataframe of global vaccination cases.
+"""
 @memoize function readGlobalVaccinationCSV()
     url = HTTP.get("https://raw.githubusercontent.com/govex/COVID-19/master/data_tables/vaccine_data/global_data/time_series_covid19_vaccine_doses_admin_global.csv")
     data = CSV.read(url.body, DataFrame)
@@ -72,7 +113,13 @@ end
 # Information Cards
 ###################
 
-# Gets total confirmed cases worldwide by summing all countries in dataframe up to specified date. 
+"""
+    getTotalConfirmedCases   
+
+Gets total confirmed cases worldwide by summing all countries in dataframe up to specified date. 
+
+Returns number of total confirmed cases of country at a specific date.
+"""
 @memoize function getTotalConfirmedCases(df, country, date)
     date = Dates.format(date, "m/d/yy")
     if country == "Global"
@@ -92,7 +139,13 @@ end
     end
 end
 
-# Gets total recovered cases worldwide by summing all countries in dataframe up to specified date.
+"""
+    getTotalRecoveredCases   
+
+Gets total recovered cases worldwide by summing all countries in dataframe up to specified date. 
+
+Returns number of total recovered cases of country at a specific date.
+"""
 @memoize function getTotalRecoveredCases(df, country, date)
     date = Dates.format(date, "m/d/yy")
     if country == "Global"
@@ -112,7 +165,13 @@ end
     end
 end
 
-# Gets total deaths worldwide by summing all countries in dataframe up to specified date.
+"""
+    getTotalDeathsCases   
+
+Gets total deaths cases worldwide by summing all countries in dataframe up to specified date. 
+
+Returns number of total deaths cases of country at a specific date.
+"""
 @memoize function getTotalDeaths(df, country, date)
     date = Dates.format(date, "m/d/yy")
     if country == "Global"
@@ -132,7 +191,14 @@ end
     end
 end
 
-# Gets total vaccinations worldwide by summing all countries in dataframe.
+
+"""
+    getTotalVaccinations   
+
+Gets total vaccinations worldwide by summing all countries in dataframe.
+
+Returns number of total vaccinations in a country at a specific date.
+"""
 @memoize function getTotalVaccinations(df, country, date)
     if(date >= Date(2020,12,12))
         date = Dates.format(date, "yyyy-mm-dd")
@@ -154,7 +220,13 @@ end
     return "Pre-vaccination date selected"
 end
 
-# Gets total vaccinations worldwide by summing all countries in dataframe.
+"""
+    getTotalCaseFatality   
+
+Gets total case fatality rate worldwide.
+
+Returns case fatality rate in a country at a specific date.
+"""
 @memoize function getTotalCaseFatality(df, country, date)
     if country == "Global"
         date = Dates.format(date, "m/d/yy")
@@ -175,6 +247,13 @@ end
 # Scatter Map Plot
 ###################
 
+"""
+    getCaseFatalityDataframe   
+
+Gets case fatality rate dataframe from confirmed and death dataframes.
+
+Returns case fatality rate dataframe.
+"""
 function getCaseFatalityDataframe(confirmedData, deathsData)
     countries = confirmedData[:,1:3]
     confirmed = copy(confirmedData)
@@ -194,7 +273,13 @@ end
 # Search and filter
 ###################
 
-# Gets list of all countries listed in dataframe. If country has multiple entries, the province/state is added also.
+"""
+    getListOfCountries   
+
+Gets list of all countries listed in dataframe. If country has multiple entries, the province/state is added also.
+
+Returns array of countries for dropdown.
+"""
 function getListOfCountries(df)
     options = [(label = "Global", value = "Global")]
     for country in df."Country/Region"
@@ -204,13 +289,25 @@ function getListOfCountries(df)
     return options
 end
 
-# Provides start date for date picker.
+"""
+    getStartDate   
+
+Provides start date for date picker.
+
+Returns date object of start date.
+"""
 function getStartDate(df)
     date = names(df)[4]
     return formatToDateObject(date)
 end
 
-# Provides end date for date picker.
+"""
+    getEndDate   
+
+Provides end date for date picker.
+
+Returns date object of end date.
+"""
 function getEndDate(df)
     date = names(df)[end]
     return formatToDateObject(date)
@@ -220,7 +317,13 @@ end
 # Utility functions
 ###################
 
-# Converts date format provided in the dataframe to a date object.
+"""
+    formatToDateObject   
+
+Converts date format provided in the dataframe to a date object.
+
+Returns date object of date string.
+"""
 function formatToDateObject(date)
     if occursin("/", date)
         date = split(date,"/")
@@ -230,7 +333,13 @@ function formatToDateObject(date)
     end
 end
 
-# Converts array of integer timeseries data into regular values.
+"""
+    convertTimeSeriesData   
+
+Converts array of integer timeseries data into regular values.
+
+Returns array of values.
+"""
 function convertTimeSeriesData(data)
     finalData = []
     for (index, value) in enumerate(data)
