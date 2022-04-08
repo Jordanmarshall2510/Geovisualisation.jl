@@ -37,6 +37,28 @@ endDate = getEndDate(confirmedData)
 # Initial Dash application with dark theme
 app = dash(external_stylesheets = [dbc_themes.DARKLY, dbc_icons.BOOTSTRAP], suppress_callback_exceptions=true)
 
+#####################
+# Information Message
+#####################
+
+modal = html_div([
+    dbc_modal(
+        [
+            dbc_modalheader(dbc_modaltitle("COVID-19 Geovisualisation")),
+            dbc_modalbody(
+                "Welcome to the COVID-19 Geovisualisation tool. This application uses data provided by the Center for Systems Science and Engineering (CSSE) at Johns Hopkins University. " * 
+                "There are two different views of the data: global view and country view. Select this option using the dropdown menu above. In global view, drag the slider to get a worldwide timeline visualisation of COVID-19. " *
+                "Country view provides an in-depth summary of the selected country."
+            ),
+            dbc_modalfooter(
+                dbc_button("Close", id = "close", className = "ms-auto", n_clicks = 0),
+            ),
+        ],
+        id = "modal",
+        is_open = true,
+    ),
+]);
+
 ###################
 # Search and filter
 ###################
@@ -71,6 +93,34 @@ controls = dbc_row(
 # Information Cards
 ###################
 
+table_header = [html_thead(html_tr([html_th("First Name"), html_th("Last Name")]))];
+
+row1 = html_tr([html_td("Arthur"), html_td("Dent")]);
+row2 = html_tr([html_td("Ford"), html_td("Prefect")]);
+row3 = html_tr([html_td("Zaphod"), html_td("Beeblebrox")]);
+row4 = html_tr([html_td("Trillian"), html_td("Astra")]);
+row5 = html_tr([html_td("Arthur"), html_td("Dent")]);
+row6 = html_tr([html_td("Ford"), html_td("Prefect")]);
+row7 = html_tr([html_td("Zaphod"), html_td("Beeblebrox")]);
+row8 = html_tr([html_td("Trillian"), html_td("Astra")]);
+row9 = html_tr([html_td("Zaphod"), html_td("Beeblebrox")]);
+row10 = html_tr([html_td("Trillian"), html_td("Astra")]);
+
+table_body = [html_tbody([row1, row2, row3, row4, row5, row6, row7, row8, row9, row10])];
+
+table = dbc_table(
+    [table_header; table_body], 
+    bordered = true,
+    dark = true,
+    hover = true,
+    responsive = "sm",
+    striped = true,
+    # style=Dict("height"=>"200px", "overflow"=>"scroll"),
+);
+
+
+heightOfCard = "10%"
+
 information = [
     dbc_row(
         html_h5(id="info-title"),
@@ -82,7 +132,7 @@ information = [
             dbc_card(
                 dbc_cardbody([
                     html_h5("Confirmed Cases", className = "card-title"),
-                    html_h6(id="totalConfirmedCases"),
+                    html_div(id="totalConfirmedCases"),
                 ]),
                 id = "confirmedTooltip",
             ),
@@ -91,7 +141,7 @@ information = [
                 target = "confirmedTooltip",
             ),
         ],
-        style=Dict("height"=> "15%"),
+        style=Dict("height"=> heightOfCard),
     ),
 
     dbc_row(style=Dict("height"=> "2.5%")),
@@ -101,7 +151,7 @@ information = [
             dbc_card(
                 dbc_cardbody([
                     html_h5("Recovered Cases", className = "card-title"),
-                    html_h6(id="totalRecoveredCases"),
+                    html_div(id="totalRecoveredCases"),
                 ]),
                 id = "recoveredTooltip",
             ),
@@ -110,7 +160,7 @@ information = [
                 target = "recoveredTooltip",
             ),
         ],
-        style=Dict("height"=> "15%"),
+        style=Dict("height"=> heightOfCard),
     ),
 
     dbc_row(style=Dict("height"=> "2.5%")),
@@ -120,7 +170,7 @@ information = [
             dbc_card(
                 dbc_cardbody([
                     html_h5("Deaths", className = "card-title"),
-                    html_h6(id="totalDeaths"),
+                    html_div(id="totalDeaths"),
                 ]),
                 id = "deathsTooltip",
             ),
@@ -129,7 +179,7 @@ information = [
                 target = "deathsTooltip",
             ),
         ],
-        style=Dict("height"=> "15%"),
+        style=Dict("height"=> heightOfCard),
     ),
 
     dbc_row(style=Dict("height"=> "2.5%")),
@@ -139,7 +189,7 @@ information = [
             dbc_card(
                 dbc_cardbody([
                     html_h5("Vaccines Administered", className = "card-title"),
-                    html_h6(id="totalVaccinations"),
+                    html_div(id="totalVaccinations"),
                 ]),
                 id = "vaccinesTooltip",
             ),
@@ -148,7 +198,7 @@ information = [
                 target = "vaccinesTooltip",
             ),
         ],
-        style=Dict("height"=> "15%"),
+        style=Dict("height"=> heightOfCard),
     ),
 
     dbc_row(style=Dict("height"=> "2.5%")),
@@ -158,7 +208,7 @@ information = [
             dbc_card(
                 dbc_cardbody([
                     html_h5("Case Fatality Rate", className = "card-title"),
-                    html_h6(id="totalCaseFatality"),
+                    html_div(id="totalCaseFatality"),
                 ]),
                 id = "caseFatalityRateTooltip",
             ),
@@ -167,15 +217,18 @@ information = [
                 target = "caseFatalityRateTooltip",
             ),
         ],
-        style=Dict("height"=> "15%"),
+        style=Dict("height"=> heightOfCard),
     ),
 
+    dbc_row(style=Dict("height"=> "2.5%")),
+
     dbc_row(
-        dbc_col(
-            html_h6(id="slider-instructions"),
+        dbc_card(
+            dbc_cardbody(
+                table,
+            ),
         ),
-        align="center",
-        style=Dict("height"=> "10%"),
+        style=Dict("height"=> heightOfCard),
     ),
 ]
 
@@ -325,6 +378,7 @@ countryGraphs=[
 
 app.layout = dbc_container(
     [
+        modal,
         # Navbar
         dbc_row(
             [
@@ -374,13 +428,12 @@ app.layout = dbc_container(
 callback!(
     app,
     Output("graphs", "children"),
-    Output("slider-instructions", "children"),
     Input("countries-dropdown", "value"),
 ) do  country
     if country == "Global"
-        return globalMap, "Drag the slider to interact with the COVID-19 global scatter plot. Select one of the tabs above the plot to change the data attribute"
+        return globalMap
     else
-        return countryGraphs, ""
+        return countryGraphs
     end
 end
 
@@ -537,6 +590,16 @@ callback!(
     return no_update(), no_update(), no_update(), no_update()
 end
 
+# Changes state of introduction modal
+callback!(
+    app,
+    Output("modal", "is_open"),
+    Input("close", "n_clicks"),
+    State("modal", "is_open"),
+) do n2, is_open
+    return n2 > 0 ? is_open == 0 : is_open
+end;
+
 ###################################
 # Run Server
 ###################################
@@ -548,5 +611,7 @@ end
 function runGeovisualiser()
     run_server(app, "127.0.0.1", dev_tools_hot_reload=true, debug=false)     
 end
+
+runGeovisualiser()
 
 end # module
