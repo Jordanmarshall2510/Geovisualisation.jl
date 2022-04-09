@@ -48,6 +48,10 @@ getTotalCaseFatality(df, country, date)
 ```
 
 ```@docs
+getTopSixFromDataframe(df)
+```
+
+```@docs
 getCaseFatalityDataframe(confirmedData, deathsData)
 ```
 
