@@ -3,6 +3,7 @@ using CSV
 using HTTP
 using Dates
 using Memoize
+using Statistics
 
 import Humanize: digitsep
 
@@ -16,6 +17,7 @@ export getTotalDeaths
 export getTotalVaccinations
 export getTotalCaseFatality
 export getCaseFatalityDataframe
+export getTopSixFromDataframe
 export getListOfCountries
 export getStartDate
 export getEndDate
@@ -241,6 +243,56 @@ Returns case fatality rate in a country at a specific date.
         total = df[df."Country/Region" .== country, date]
         return round(total[1]; digits=3)
     end
+end
+
+"""
+    getTopSixFromDataframe   
+
+Gets top six countries for selected attribute worldwide.
+
+Returns country and value for table.
+"""
+@memoize function getTopSixFromDataframe(df)
+    topSixIndexes = sortperm(df[!, end], rev=true)
+
+    contents = []
+
+    for i in 1:6
+        value = string(df[topSixIndexes[i], end])
+        if occursin(".",value)
+            value = round(parse(Float32, value); digits=3)
+        else
+            value = digitsep(parse(Int32, value))
+        end 
+        push!(contents,html_tr([html_td(df."Country/Region"[topSixIndexes[i]]), html_td(value)]))
+    end
+
+    return contents
+end
+
+"""
+    getStatisticsTableForCountry   
+
+Gets statistics for table for specified country. Dataframes are already filtered.
+
+Returns statistics with values for table in country view
+"""
+@memoize function getStatisticsTableForCountry(filteredConfirmedData, filteredDeathsData, filteredVaccinationData)
+
+    confirmed = convertTimeSeriesData(collect(filteredConfirmedData[!, 4:end][1,:]))
+    deaths = convertTimeSeriesData(collect(filteredDeathsData[!, 4:end][1,:]))
+    vaccinations = convertTimeSeriesData(collect(filteredVaccinationData[!, 4:end][1,:]))
+
+    content = [
+        html_tr([html_td("Highest Confirmed Cases in a Single Day"), html_td(findmax(confirmed)[1])]),
+        html_tr([html_td("Highest Deaths Cases in a Single Day"), html_td(findmax(deaths)[1])]),
+        html_tr([html_td("Highest Vaccinations in a Single Day"), html_td(findmax(vaccinations)[1])]),
+        html_tr([html_td("Mean Confirmed Cases"), html_td(round(mean(confirmed), digits=3))]),
+        html_tr([html_td("Mean Death Cases"), html_td(round(mean(deaths), digits=3))]),
+        html_tr([html_td("Mean Vaccinations"), html_td(round(mean(vaccinations), digits=3))]),
+    ]
+
+    return content
 end
 
 ###################

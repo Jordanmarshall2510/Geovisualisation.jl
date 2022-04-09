@@ -37,6 +37,28 @@ endDate = getEndDate(confirmedData)
 # Initial Dash application with dark theme
 app = dash(external_stylesheets = [dbc_themes.DARKLY, dbc_icons.BOOTSTRAP], suppress_callback_exceptions=true)
 
+#####################
+# Information Message
+#####################
+
+modal = html_div([
+    dbc_modal(
+        [
+            dbc_modalheader(dbc_modaltitle("COVID-19 Geovisualisation")),
+            dbc_modalbody(
+                "Welcome to the COVID-19 Geovisualisation tool. This application uses data provided by the Center for Systems Science and Engineering (CSSE) at Johns Hopkins University. " * 
+                "There are two different views of the data: global view and country view. Select this option using the dropdown menu above. In global view, drag the slider to get a worldwide timeline visualisation of COVID-19. " *
+                "Country view provides an in-depth summary of the selected country."
+            ),
+            dbc_modalfooter(
+                dbc_button("Close", id = "close", className = "ms-auto", n_clicks = 0),
+            ),
+        ],
+        id = "modal",
+        is_open = true,
+    ),
+]);
+
 ###################
 # Search and filter
 ###################
@@ -71,6 +93,8 @@ controls = dbc_row(
 # Information Cards
 ###################
 
+heightOfCard = "10%"
+
 information = [
     dbc_row(
         html_h5(id="info-title"),
@@ -82,7 +106,7 @@ information = [
             dbc_card(
                 dbc_cardbody([
                     html_h5("Confirmed Cases", className = "card-title"),
-                    html_h6(id="totalConfirmedCases"),
+                    html_div(id="totalConfirmedCases"),
                 ]),
                 id = "confirmedTooltip",
             ),
@@ -91,17 +115,15 @@ information = [
                 target = "confirmedTooltip",
             ),
         ],
-        style=Dict("height"=> "15%"),
+        style=Dict("height"=> heightOfCard),
     ),
-
-    dbc_row(style=Dict("height"=> "2.5%")),
 
     dbc_row(
         [
             dbc_card(
                 dbc_cardbody([
                     html_h5("Recovered Cases", className = "card-title"),
-                    html_h6(id="totalRecoveredCases"),
+                    html_div(id="totalRecoveredCases"),
                 ]),
                 id = "recoveredTooltip",
             ),
@@ -110,17 +132,15 @@ information = [
                 target = "recoveredTooltip",
             ),
         ],
-        style=Dict("height"=> "15%"),
+        style=Dict("height"=> heightOfCard),
     ),
-
-    dbc_row(style=Dict("height"=> "2.5%")),
 
     dbc_row(
         [
             dbc_card(
                 dbc_cardbody([
                     html_h5("Deaths", className = "card-title"),
-                    html_h6(id="totalDeaths"),
+                    html_div(id="totalDeaths"),
                 ]),
                 id = "deathsTooltip",
             ),
@@ -129,17 +149,15 @@ information = [
                 target = "deathsTooltip",
             ),
         ],
-        style=Dict("height"=> "15%"),
+        style=Dict("height"=> heightOfCard),
     ),
-
-    dbc_row(style=Dict("height"=> "2.5%")),
 
     dbc_row(
         [
             dbc_card(
                 dbc_cardbody([
                     html_h5("Vaccines Administered", className = "card-title"),
-                    html_h6(id="totalVaccinations"),
+                    html_div(id="totalVaccinations"),
                 ]),
                 id = "vaccinesTooltip",
             ),
@@ -148,17 +166,15 @@ information = [
                 target = "vaccinesTooltip",
             ),
         ],
-        style=Dict("height"=> "15%"),
+        style=Dict("height"=> heightOfCard),
     ),
-
-    dbc_row(style=Dict("height"=> "2.5%")),
 
     dbc_row(
         [
             dbc_card(
                 dbc_cardbody([
                     html_h5("Case Fatality Rate", className = "card-title"),
-                    html_h6(id="totalCaseFatality"),
+                    html_div(id="totalCaseFatality"),
                 ]),
                 id = "caseFatalityRateTooltip",
             ),
@@ -167,15 +183,23 @@ information = [
                 target = "caseFatalityRateTooltip",
             ),
         ],
-        style=Dict("height"=> "15%"),
+        style=Dict("height"=> heightOfCard),
+    ),
+
+    dbc_row(style=Dict("height"=> "2.5%")),
+
+    dbc_row(
+        html_h5(id="tableTitle"),
+        style=Dict("height"=> "5%"),
     ),
 
     dbc_row(
-        dbc_col(
-            html_h6(id="slider-instructions"),
+        dbc_card(
+            dbc_cardbody(
+                id = "table"
+            ),
         ),
-        align="center",
-        style=Dict("height"=> "10%"),
+        style=Dict("height"=> "37.5%"),
     ),
 ]
 
@@ -201,33 +225,43 @@ globalMap=[
         dcc_graph(
             id = "graph-mapbox-plot",
         ),
-        style=Dict("height"=> "85%"),
+        style=Dict("height"=> "80%"),
     ),
+
+    dbc_row(style=Dict("height"=> "2.5%")),
 
     dbc_row(
         dbc_col(
-            html_div(id="selected-value-slider"),
+            html_h5(id="selected-value-slider"),
             width="auto"
         ),
-        justify = "center",
+        justify="center",
+        align="center",
         style=Dict("height"=> "5%"),
     ),
 
+
     dbc_row(
         dbc_col(
-            dcc_slider(
-                id="map-slider",
-                min=5,
-                max=size(confirmedData,2),
-                step=1,
-                value=size(confirmedData,2),
-                updatemode="drag",
+            dbc_card(
+                dbc_cardbody(
+                    dcc_slider(
+                        id="map-slider",
+                        min=5,
+                        max=size(confirmedData,2),
+                        step=1,
+                        value=size(confirmedData,2),
+                        updatemode="drag",
+                    ),
+                ),
             ),
             width=12,
         ),
         style=Dict("height"=> "5%"),
     ),
 ]
+
+heightOfCountryGraphs = "40vh"
 
 countryGraphs=[
     dbc_row(
@@ -252,7 +286,7 @@ countryGraphs=[
                     children=[
                         dcc_graph(
                             id="country-map",
-                            style = Dict("height"=>"35vh"),
+                            style = Dict("height"=>heightOfCountryGraphs),
                         )
                     ],
                 ),
@@ -264,14 +298,14 @@ countryGraphs=[
                     children=[
                         dcc_graph(
                             id="country-vaccination-graph",
-                            style = Dict("height"=>"35vh"),
+                            style = Dict("height"=>heightOfCountryGraphs),
                         )
                     ],
                 ),
                 width=6,
             ),
         ],
-        style = Dict("height"=>"40%"),
+        style = Dict("height"=>"45%"),
     ),
 
     dbc_row(
@@ -296,7 +330,7 @@ countryGraphs=[
                     children=[
                         dcc_graph(
                             id="country-confirmed-graph",
-                            style = Dict("height"=>"36vh"),
+                            style = Dict("height"=>heightOfCountryGraphs),
                         )
                     ],
                 ),
@@ -308,23 +342,20 @@ countryGraphs=[
                     children=[
                         dcc_graph(
                             id="country-deaths-graph",
-                            style = Dict("height"=>"36vh"),
+                            style = Dict("height"=>heightOfCountryGraphs),
                         )
                     ],
                 ),
                 width=6,
             ),
         ],
-        style = Dict("height"=>"40%"),
-    ),
-
-    dbc_row(
-        style = Dict("height"=>"10%"), 
+        style = Dict("height"=>"45%"),
     ),
 ]
 
 app.layout = dbc_container(
     [
+        modal,
         # Navbar
         dbc_row(
             [
@@ -373,14 +404,58 @@ app.layout = dbc_container(
 # Change between global and country views
 callback!(
     app,
+    Output("tableTitle", "children"),
+    Output("table", "children"),
     Output("graphs", "children"),
-    Output("slider-instructions", "children"),
     Input("countries-dropdown", "value"),
 ) do  country
     if country == "Global"
-        return globalMap, "Drag the slider to interact with the COVID-19 global scatter plot. Select one of the tabs above the plot to change the data attribute"
+        table_title = html_div(id="tableTitleGlobal")
+        table_header = [
+            html_thead(
+                html_tr([
+                    html_th("Country/Region"), 
+                    html_th("Cases/Rate"),
+                ])
+            )
+        ];
+
+        table_body = [html_tbody(id="tableContentsGlobal")];
+
+        table = dbc_table(
+            [table_header; table_body], 
+            bordered = true,
+            dark = true,
+            hover = true,
+            responsive = "sm",
+            striped = true,
+            style=Dict("max-height"=>"100px", "overflow"=>"scroll"),
+        )
+        return table_title, table, globalMap
     else
-        return countryGraphs, ""
+        table_title = html_div(id="tableTitleCountry")
+
+        table_header = [
+            html_thead(
+                html_tr([
+                    html_th("Statistic"), 
+                    html_th("Value"),
+                ])
+            )
+        ];
+
+        table_body = [html_tbody(id="tableContentsCountry")];
+
+        table = dbc_table(
+            [table_header; table_body], 
+            bordered = true,
+            dark = true,
+            hover = true,
+            responsive = "sm",
+            striped = true,
+            style=Dict("max-height"=>"100px", "overflow"=>"scroll"),
+        )
+        return table_title, table, countryGraphs
     end
 end
 
@@ -420,18 +495,23 @@ end
 callback!(
     app, 
     Output("graph-mapbox-plot", "figure"),
-    Output("selected-value-slider", "children"), 
+    Output("selected-value-slider", "children"),
+    Output("tableTitleGlobal","children"),
+    Output("tableContentsGlobal","children"),
     Input("map-slider", "value"),
     Input("tabs", "active_tab"),
     ) do sliderInput, tab
     if tab == "confirmed-tab"
         dataset = confirmedData
+        title = "Top 6 Highest Confirmed Cases"
         colour = "blue"
     elseif tab == "death-tab"
         dataset = deathsData
+        title = "Top 6 Highest Death Cases"
         colour = "black"
     elseif tab == "case-fatality-tab"
         dataset = caseFatalityData
+        title = "Top 6 Highest Case Fatality Rate"
         colour = "red"
     end
 
@@ -459,7 +539,8 @@ callback!(
             margin=Dict("r"=>0,"t"=>0,"l"=>0,"b"=>0),
         )
     )
-    return figure, "Selected Date: " * sliderDateFormat
+
+    return figure, "Selected Date: " * sliderDateFormat, title, getTopSixFromDataframe(dataset)
 end
 
 # Changes country graphs on selection
@@ -469,8 +550,13 @@ callback!(
     Output("country-vaccination-graph", "figure"),
     Output("country-confirmed-graph", "figure"),
     Output("country-deaths-graph", "figure"),
+    Output("tableTitleCountry", "children"),
+    Output("tableContentsCountry", "children"),
     Input("countries-dropdown", "value"),
 ) do region
+
+    tableTitle = "Statistics for " * region
+
     if (isnothing(region) == false) && (region != "Global")
         filteredConfirmedData = filter(df -> (df."Country/Region" == region), confirmedData)
         filteredDeathsData = filter(df -> (df."Country/Region" == region), deathsData)
@@ -528,14 +614,27 @@ callback!(
                     )
                 ], 
             )
-
-            return map, vaccinationGraph, confirmedGraph, deathsGraph
+        
+            tableStatistics = getStatisticsTableForCountry(filteredConfirmedData, filteredDeathsData, filteredVaccinationData)
+            
+            return map, vaccinationGraph, confirmedGraph, deathsGraph, tableTitle, tableStatistics
         else
-            return map, no_update(), confirmedGraph, deathsGraph
+            return map, no_update(), confirmedGraph, deathsGraph, tableTitle, no_update()
         end
     end
-    return no_update(), no_update(), no_update(), no_update()
+    println("FAILED: " * region)
+    return no_update(), no_update(), no_update(), no_update(), tableTitle, no_update()
 end
+
+# Changes table information for country view
+callback!(
+    app,
+    Output("modal", "is_open"),
+    Input("close", "n_clicks"),
+    State("modal", "is_open"),
+) do n2, is_open
+    return n2 > 0 ? is_open == 0 : is_open
+end;
 
 ###################################
 # Run Server
