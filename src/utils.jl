@@ -277,9 +277,7 @@ Gets statistics for table for specified country. Dataframes are already filtered
 
 Returns statistics with values for table in country view
 """
-@memoize function getStatisticsTableForCountry(region, filteredConfirmedData, filteredDeathsData, filteredVaccinationData)
-
-    println("UTILS: "*region )
+@memoize function getStatisticsTableForCountry(filteredConfirmedData, filteredDeathsData, filteredVaccinationData)
 
     confirmed = convertTimeSeriesData(collect(filteredConfirmedData[!, 4:end][1,:]))
     deaths = convertTimeSeriesData(collect(filteredDeathsData[!, 4:end][1,:]))

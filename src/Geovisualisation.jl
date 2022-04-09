@@ -554,9 +554,9 @@ callback!(
     Output("tableContentsCountry", "children"),
     Input("countries-dropdown", "value"),
 ) do region
+
     tableTitle = "Statistics for " * region
-    println("IF: "*string(isnothing(region)))
-    println("IF: "*region)
+
     if (isnothing(region) == false) && (region != "Global")
         filteredConfirmedData = filter(df -> (df."Country/Region" == region), confirmedData)
         filteredDeathsData = filter(df -> (df."Country/Region" == region), deathsData)
@@ -615,9 +615,7 @@ callback!(
                 ], 
             )
         
-            println("BEFORE: " * region)
-            tableStatistics = getStatisticsTableForCountry(region, filteredConfirmedData, filteredDeathsData, filteredVaccinationData)
-            println("AFTER: " * region)
+            tableStatistics = getStatisticsTableForCountry(filteredConfirmedData, filteredDeathsData, filteredVaccinationData)
             
             return map, vaccinationGraph, confirmedGraph, deathsGraph, tableTitle, tableStatistics
         else
@@ -649,7 +647,5 @@ end;
 function runGeovisualiser()
     run_server(app, "127.0.0.1", dev_tools_hot_reload=true, debug=false)     
 end
-
-runGeovisualiser()
 
 end # module

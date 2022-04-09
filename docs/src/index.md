@@ -52,6 +52,10 @@ getTopSixFromDataframe(df)
 ```
 
 ```@docs
+getStatisticsTableForCountry(filteredConfirmedData, filteredDeathsData, filteredVaccinationData)
+```
+
+```@docs
 getCaseFatalityDataframe(confirmedData, deathsData)
 ```
 
