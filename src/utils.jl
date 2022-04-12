@@ -18,6 +18,7 @@ export getTotalVaccinations
 export getTotalCaseFatality
 export getCaseFatalityDataframe
 export getTopSixFromDataframe
+export getStatisticsTableForCountry
 export getListOfCountries
 export getStartDate
 export getEndDate
