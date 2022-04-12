@@ -41,23 +41,25 @@ app = dash(external_stylesheets = [dbc_themes.DARKLY, dbc_icons.BOOTSTRAP], supp
 # Information Message
 #####################
 
-modal = html_div([
-    dbc_modal(
-        [
-            dbc_modalheader(dbc_modaltitle("COVID-19 Geovisualisation")),
-            dbc_modalbody(
-                "Welcome to the COVID-19 Geovisualisation tool. This application uses data provided by the Center for Systems Science and Engineering (CSSE) at Johns Hopkins University. " * 
-                "There are two different views of the data: global view and country view. Select this option using the dropdown menu above. In global view, drag the slider to get a worldwide timeline visualisation of COVID-19. " *
-                "Country view provides an in-depth summary of the selected country."
-            ),
-            dbc_modalfooter(
-                dbc_button("Close", id = "close", className = "ms-auto", n_clicks = 0),
-            ),
-        ],
-        id = "modal",
-        is_open = true,
-    ),
-]);
+modal = html_div(
+    [
+        dbc_modal(
+            [
+                dbc_modalheader(dbc_modaltitle("COVID-19 Geovisualisation")),
+                dbc_modalbody(
+                    "Welcome to the COVID-19 Geovisualisation tool. This application uses data provided by the Center for Systems Science and Engineering (CSSE) at Johns Hopkins University. " * 
+                    "There are two different views of the data: global view and country view. Select this option using the dropdown menu above. In global view, drag the slider to get a worldwide timeline visualisation of COVID-19. " *
+                    "Country view provides an in-depth summary of the selected country."
+                ),
+                dbc_modalfooter(
+                    dbc_button("Close", id = "close", className = "ms-auto", n_clicks = 0),
+                ),
+            ],
+            id = "modal",
+            is_open = true,
+        ),
+    ]
+);
 
 ###################
 # Search and filter
@@ -104,10 +106,12 @@ information = [
     dbc_row(
         [
             dbc_card(
-                dbc_cardbody([
-                    html_h5("Confirmed Cases", className = "card-title"),
-                    html_div(id="totalConfirmedCases"),
-                ]),
+                dbc_cardbody(
+                    [
+                        html_h5("Confirmed Cases", className = "card-title"),
+                        html_div(id="totalConfirmedCases"),
+                    ]
+                ),
                 id = "confirmedTooltip",
             ),
             dbc_tooltip(
@@ -121,10 +125,12 @@ information = [
     dbc_row(
         [
             dbc_card(
-                dbc_cardbody([
-                    html_h5("Recovered Cases", className = "card-title"),
-                    html_div(id="totalRecoveredCases"),
-                ]),
+                dbc_cardbody(
+                    [
+                        html_h5("Recovered Cases", className = "card-title"),
+                        html_div(id="totalRecoveredCases"),
+                    ]
+                ),
                 id = "recoveredTooltip",
             ),
             dbc_tooltip(
@@ -138,10 +144,12 @@ information = [
     dbc_row(
         [
             dbc_card(
-                dbc_cardbody([
-                    html_h5("Deaths", className = "card-title"),
-                    html_div(id="totalDeaths"),
-                ]),
+                dbc_cardbody(
+                    [
+                        html_h5("Deaths", className = "card-title"),
+                        html_div(id="totalDeaths"),
+                    ]
+                ),
                 id = "deathsTooltip",
             ),
             dbc_tooltip(
@@ -155,10 +163,12 @@ information = [
     dbc_row(
         [
             dbc_card(
-                dbc_cardbody([
-                    html_h5("Vaccines Administered", className = "card-title"),
-                    html_div(id="totalVaccinations"),
-                ]),
+                dbc_cardbody(
+                    [
+                        html_h5("Vaccines Administered", className = "card-title"),
+                        html_div(id="totalVaccinations"),
+                    ]
+                ),
                 id = "vaccinesTooltip",
             ),
             dbc_tooltip(
@@ -172,10 +182,12 @@ information = [
     dbc_row(
         [
             dbc_card(
-                dbc_cardbody([
-                    html_h5("Case Fatality Rate", className = "card-title"),
-                    html_div(id="totalCaseFatality"),
-                ]),
+                dbc_cardbody(
+                    [
+                        html_h5("Case Fatality Rate", className = "card-title"),
+                        html_div(id="totalCaseFatality"),
+                    ]
+                ),
                 id = "caseFatalityRateTooltip",
             ),
             dbc_tooltip(
@@ -186,7 +198,9 @@ information = [
         style=Dict("height"=> heightOfCard),
     ),
 
-    dbc_row(style=Dict("height"=> "2.5%")),
+    dbc_row(
+        style=Dict("height"=> "2.5%")
+    ),
 
     dbc_row(
         html_h5(id="tableTitle"),
@@ -228,7 +242,9 @@ globalMap=[
         style=Dict("height"=> "80%"),
     ),
 
-    dbc_row(style=Dict("height"=> "2.5%")),
+    dbc_row(
+        style=Dict("height"=> "2.5%")
+    ),
 
     dbc_row(
         dbc_col(
@@ -282,7 +298,7 @@ countryGraphs=[
         [
             dbc_col(
                 dcc_loading(
-                type="default",
+                    type="default",
                     children=[
                         dcc_graph(
                             id="country-map",
@@ -413,14 +429,18 @@ callback!(
         table_title = html_div(id="tableTitleGlobal")
         table_header = [
             html_thead(
-                html_tr([
-                    html_th("Country/Region"), 
-                    html_th("Cases/Rate"),
-                ])
+                html_tr(
+                    [
+                        html_th("Country/Region"), 
+                        html_th("Cases/Rate"),
+                    ]
+                )
             )
         ];
 
-        table_body = [html_tbody(id="tableContentsGlobal")];
+        table_body = [
+            html_tbody(id="tableContentsGlobal")
+        ]
 
         table = dbc_table(
             [table_header; table_body], 
@@ -437,14 +457,16 @@ callback!(
 
         table_header = [
             html_thead(
-                html_tr([
-                    html_th("Statistic"), 
-                    html_th("Value"),
-                ])
+                html_tr(
+                    [
+                        html_th("Statistic"), 
+                        html_th("Value"),
+                    ]
+                )
             )
-        ];
+        ]
 
-        table_body = [html_tbody(id="tableContentsCountry")];
+        table_body = [html_tbody(id="tableContentsCountry")]
 
         table = dbc_table(
             [table_header; table_body], 
@@ -470,7 +492,6 @@ callback!(
     Output("totalCaseFatality", "children"),
     Input("date-picker", "date"),
     Input("countries-dropdown", "value"),
-
 ) do date, country
     if (isnothing(country) == false && isnothing(date) == false)
         date = Date(date)
@@ -647,5 +668,7 @@ end;
 function runGeovisualiser()
     run_server(app, "127.0.0.1", dev_tools_hot_reload=true, debug=false)     
 end
+
+runGeovisualiser()
 
 end # module
