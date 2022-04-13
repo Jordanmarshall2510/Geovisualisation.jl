@@ -238,14 +238,14 @@ Returns case fatality rate in a country at a specific date.
         if(total[1] == 0)
             return "No Data Available"
         end
-        return round(total; digits=3)
+        return string(round(total; digits=3))
     else
         date = Dates.format(date, "m/d/yy")
         total = df[df."Country/Region" .== country, date]
         if(isempty(total) || total[1] == 0)
             return "No Data Available"
         else
-            return round(total[1]; digits=3)
+            return string(round(total[1]; digits=3))
         end
     end
 end
