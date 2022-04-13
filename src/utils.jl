@@ -18,6 +18,7 @@ export getTotalVaccinations
 export getTotalCaseFatality
 export getCaseFatalityDataframe
 export getTopSixFromDataframe
+export getStatisticsTableForCountry
 export getListOfCountries
 export getStartDate
 export getEndDate
@@ -133,7 +134,7 @@ Returns number of total confirmed cases of country at a specific date.
         return digitsep(total)
     else
         total = df[df."Country/Region" .== country, date]
-        if(isempty(total))
+        if(isempty(total) || total[1] == 0)
             return "No Data Available"
         else
             return digitsep(total[1])
@@ -159,7 +160,7 @@ Returns number of total recovered cases of country at a specific date.
         return digitsep(total)
     else
         total = df[df."Country/Region" .== country, date]
-        if(isempty(total) || total == 0)
+        if(isempty(total) || total[1] == 0)
             return "No Data Available"
         else
             return digitsep(total[1])
@@ -185,7 +186,7 @@ Returns number of total deaths cases of country at a specific date.
         return digitsep(total)
     else
         total = df[df."Country/Region" .== country, date]
-        if(isempty(total))
+        if(isempty(total) || total[1] == 0)
             return "No Data Available"
         else
             return digitsep(total[1])
@@ -212,7 +213,7 @@ Returns number of total vaccinations in a country at a specific date.
             return digitsep(total)
         else
             total = df[df."Country/Region" .== country, date]
-            if(isempty(total))
+            if(isempty(total) || total[1] == 0)
                 return "No Data Available"
             else
                 return digitsep(total[1])
@@ -234,14 +235,18 @@ Returns case fatality rate in a country at a specific date.
         date = Dates.format(date, "m/d/yy")
         replace!(df[!,date], missing => 0)
         total = sum(df[!,date])
-        if(total == 0)
+        if(total[1] == 0)
             return "No Data Available"
         end
-        return round(total; digits=3)
+        return string(round(total; digits=3))
     else
         date = Dates.format(date, "m/d/yy")
         total = df[df."Country/Region" .== country, date]
-        return round(total[1]; digits=3)
+        if(isempty(total) || total[1] == 0)
+            return "No Data Available"
+        else
+            return string(round(total[1]; digits=3))
+        end
     end
 end
 
@@ -284,9 +289,9 @@ Returns statistics with values for table in country view
     vaccinations = convertTimeSeriesData(collect(filteredVaccinationData[!, 4:end][1,:]))
 
     content = [
-        html_tr([html_td("Highest Confirmed Cases in a Single Day"), html_td(findmax(confirmed)[1])]),
-        html_tr([html_td("Highest Deaths Cases in a Single Day"), html_td(findmax(deaths)[1])]),
-        html_tr([html_td("Highest Vaccinations in a Single Day"), html_td(findmax(vaccinations)[1])]),
+        html_tr([html_td("Highest Confirmed Cases (Day)"), html_td(findmax(confirmed)[1])]),
+        html_tr([html_td("Highest Deaths Cases (Day)"), html_td(findmax(deaths)[1])]),
+        html_tr([html_td("Highest Vaccinations (Day)"), html_td(findmax(vaccinations)[1])]),
         html_tr([html_td("Mean Confirmed Cases"), html_td(round(mean(confirmed), digits=3))]),
         html_tr([html_td("Mean Death Cases"), html_td(round(mean(deaths), digits=3))]),
         html_tr([html_td("Mean Vaccinations"), html_td(round(mean(vaccinations), digits=3))]),
