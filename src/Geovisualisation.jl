@@ -5,6 +5,7 @@ using DashBootstrapComponents
 using PlotlyJS
 using Dates
 using DataFrames
+import Humanize: digitsep
 
 export runGeovisualiser
 
@@ -88,6 +89,11 @@ controls = dbc_row(
             width="6",
         ), 
 
+        dbc_tooltip(
+            "This dropdown menu can switch between a global or country view. Select 'Global' for a worldwide view of the data or select a country for a more detailed view.",
+            target = "countries-dropdown",
+        ),
+
         dbc_col(
             dcc_datepickersingle(
                 id = "date-picker",
@@ -98,6 +104,11 @@ controls = dbc_row(
             ),
             style = Dict("padding-left" => "10px"),
             width="6",
+        ),
+
+        dbc_tooltip(
+            "This date picker can provide information on the select date on the information cards on the left.",
+            target = "date-picker",
         ),
     ],
 )
@@ -220,10 +231,17 @@ information = [
 
     dbc_row(
         dbc_card(
-            dbc_cardbody(
-                id = "table"
-            ),
+            dcc_loading(
+                type="default",
+                children=[
+                    dbc_cardbody(
+                        id = "table"
+                    ),
+                ]
+            ),  
         ),
+        # align="center",
+        # justify="center",
         style=Dict("height"=> "37.5%"),
     ),
 ]
@@ -267,6 +285,10 @@ globalMap=[
         style=Dict("height"=> "5%"),
     ),
 
+    dbc_tooltip(
+        "Move the slider to view the graph on different dates.",
+        target = "selected-value-slider"
+    ),
 
     dbc_row(
         dbc_col(
@@ -533,23 +555,30 @@ callback!(
     Input("map-slider", "value"),
     Input("tabs", "active_tab"),
     ) do sliderInput, tab
-    if tab == "confirmed-tab"
-        dataset = confirmedData
-        title = "Top 6 Highest Confirmed Cases"
-        colour = "blue"
-    elseif tab == "death-tab"
-        dataset = deathsData
-        title = "Top 6 Highest Death Cases"
-        colour = "black"
-    elseif tab == "case-fatality-tab"
-        dataset = caseFatalityData
-        title = "Top 6 Highest Case Fatality Rate"
-        colour = "red"
-    end
 
     sliderDict = Dict(collect(4:size(confirmedData,2)) .=> names(confirmedData)[4:size(confirmedData,2)])
     sliderDate = Date(sliderDict[sliderInput], "mm/dd/yy")
     sliderDateFormat = Dates.format(sliderDate, "dd U yy")
+
+    if tab == "confirmed-tab"
+        selectedDataset = confirmedData
+        title = "Top 6 Highest Confirmed Cases"
+        colour = "blue"
+        dataset = copy(selectedDataset)
+        dataset."Country/Region" = string.(dataset."Country/Region", " (", prettifyNumberArray(dataset[!, sliderInput]), " cases)")
+    elseif tab == "death-tab"
+        selectedDataset = deathsData
+        title = "Top 6 Highest Death Cases"
+        colour = "black"
+        dataset = copy(selectedDataset)
+        dataset."Country/Region" = string.(dataset."Country/Region", " (", prettifyNumberArray(dataset[!, sliderInput]), " cases)")
+    elseif tab == "case-fatality-tab"
+        selectedDataset = caseFatalityData
+        title = "Top 6 Highest Case Fatality Rate"
+        colour = "red"
+        dataset = copy(selectedDataset)
+        dataset."Country/Region" = string.(dataset."Country/Region", " (Rate of ", roundNumberArray(dataset[!, sliderInput]), ")")
+    end
 
     figure = (
         data = [
@@ -572,7 +601,7 @@ callback!(
         )
     )
 
-    return figure, "Selected Date: " * sliderDateFormat, title, getTopSixFromDataframe(dataset)
+    return figure, "Selected Date: " * sliderDateFormat, title, getTopSixFromDataframe(selectedDataset)
 end
 
 # Changes country graphs on selection
@@ -679,6 +708,4 @@ function runGeovisualiser()
     run_server(app, "127.0.0.1", dev_tools_hot_reload=true, debug=true)     
 end
 
-# runGeovisualiser()
-
-end # module
+end

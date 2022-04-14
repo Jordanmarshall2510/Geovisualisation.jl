@@ -90,6 +90,13 @@ formatToDateObject(date)
 convertTimeSeriesData(data)
 ```
 
+```@docs
+prettifyNumberArray(data)
+```
+
+```@docs
+roundNumberArray(data)
+
 ## Index
 
 ```@index
