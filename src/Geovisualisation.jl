@@ -91,6 +91,7 @@ controls = dbc_row(
 
         dbc_tooltip(
             "This dropdown menu can switch between a global or country view. Select 'Global' for a worldwide view of the data or select a country for a more detailed view.",
+            placement = "left",
             target = "countries-dropdown",
         ),
 
@@ -108,6 +109,7 @@ controls = dbc_row(
 
         dbc_tooltip(
             "This date picker can provide information on the select date on the information cards on the left.",
+            placement = "left",
             target = "date-picker",
         ),
     ],
@@ -707,5 +709,7 @@ end;
 function runGeovisualiser()
     run_server(app, "127.0.0.1", dev_tools_hot_reload=true, debug=true)     
 end
+
+runGeovisualiser()
 
 end
