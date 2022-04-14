@@ -24,6 +24,8 @@ export getStartDate
 export getEndDate
 export formatToDateObject
 export convertTimeSeriesData
+export prettifyNumberArray
+export roundNumberArray
 
 #################
 # Reading of Date
@@ -289,9 +291,9 @@ Returns statistics with values for table in country view
     vaccinations = convertTimeSeriesData(collect(filteredVaccinationData[!, 4:end][1,:]))
 
     content = [
-        html_tr([html_td("Highest Confirmed Cases (Day)"), html_td(findmax(confirmed)[1])]),
-        html_tr([html_td("Highest Deaths Cases (Day)"), html_td(findmax(deaths)[1])]),
-        html_tr([html_td("Highest Vaccinations (Day)"), html_td(findmax(vaccinations)[1])]),
+        html_tr([html_td("Highest Confirmed Cases (Day)"), html_td(digitsep(findmax(confirmed)[1]))]),
+        html_tr([html_td("Highest Deaths Cases (Day)"), html_td(digitsep(findmax(deaths)[1]))]),
+        html_tr([html_td("Highest Vaccinations (Day)"), html_td(digitsep(findmax(vaccinations)[1]))]),
         html_tr([html_td("Mean Confirmed Cases"), html_td(round(mean(confirmed), digits=3))]),
         html_tr([html_td("Mean Death Cases"), html_td(round(mean(deaths), digits=3))]),
         html_tr([html_td("Mean Vaccinations"), html_td(round(mean(vaccinations), digits=3))]),
@@ -317,7 +319,7 @@ function getCaseFatalityDataframe(confirmedData, deathsData)
     deaths = copy(deathsData)
     confirmed = select!(confirmed, Not(:1:3))
     deaths = select!(deaths, Not(:1:3))
-    caseFatality = confirmed ./ deaths
+    caseFatality = deaths ./ confirmed
     for col in eachcol(caseFatality)
         replace!(col, Inf=>0)
         replace!(col, NaN=>0)
@@ -402,11 +404,41 @@ function convertTimeSeriesData(data)
     for (index, value) in enumerate(data)
         if(index != 1)
             finalValue = value - data[index-1]
-            if(finalValue < 0) 
+            if(finalValue < 0)
                 finalValue = 0
             end
             push!(finalData, finalValue)
         end
     end
     return finalData
+end
+
+"""
+    prettifyNumberArray   
+
+This function prettifies a number array to include comma separated values.
+
+Returns array of prettified numbers.
+"""
+function prettifyNumberArray(data)
+    result = []
+    for x in data
+        push!(result, digitsep(x))
+    end
+    return result
+end
+
+"""
+    prettifyNumberArray   
+
+This function rounds a number array to 3 decimal places.
+
+Returns array of round numbers.
+"""
+function roundNumberArray(data)
+    result = []
+    for x in data
+        push!(result, round(x, digits=3))
+    end
+    return result
 end
