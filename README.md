@@ -1,7 +1,6 @@
 # COVID-19 Geovisualisation
 
 [![Build & Testing](https://github.com/Jordanmarshall2510/Geovisualisation.jl/actions/workflows/ci.yml/badge.svg)](https://github.com/Jordanmarshall2510/Geovisualisation.jl/actions/workflows/ci.yml)
-
 [![codecov](https://codecov.io/gh/Jordanmarshall2510/Geovisualisation.jl/branch/main/graph/badge.svg?token=VZIIWH1MRC)](https://codecov.io/gh/Jordanmarshall2510/Geovisualisation.jl)
 
 COVID-19 Geovisualisation provides easy to understand Coronavirus data, visualised on a dashboard. Data is updated daily by the Center for Systems Science and Engineering (CSSE) at Johns Hopkins University.

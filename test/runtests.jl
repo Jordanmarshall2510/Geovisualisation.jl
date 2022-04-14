@@ -36,6 +36,13 @@ end
     @test getTotalVaccinations(vaccinationData, "China (Hubei)", Date("2020-01-22")) == "Pre-vaccination date selected"
     @test getTotalVaccinations(vaccinationData, "China (Hubei)", Date("2020-12-12")) == "No Data Available"
     @test getTotalCaseFatality(caseFatalityRateData, "China (Hubei)", Date("2020-01-22")) == "0.038"
+
+    @test getTotalConfirmedCases(confirmedData, "Global", Date("2020-01-22")) == "557"
+    @test getTotalDeaths(deathsData, "Global", Date("2020-01-22")) == "17"
+    @test getTotalRecoveredCases(recoveredData, "Global", Date("2020-01-22")) == "30"
+    @test getTotalVaccinations(vaccinationData, "Global", Date("2020-01-22")) == "Pre-vaccination date selected"
+    @test getTotalVaccinations(vaccinationData, "Global", Date("2020-12-12")) == "86,095"
+    @test getTotalCaseFatality(caseFatalityRateData, "Global", Date("2020-01-22")) == "0.038"
 end
 
 @testset "Control Functions" begin
@@ -45,11 +52,13 @@ end
     @test issubset([(label = "Canada (Alberta)", value = "Canada (Alberta)")], getListOfCountries(confirmedData)) == true
     
     @test getStartDate(confirmedData) == Date("2020-01-22")
+    @test getEndDate(confirmedData) == formatToDateObject(names(confirmedData)[end])
 end
 
 @testset "Utility Functions" begin
     @test formatToDateObject("1/22/20") == Date("2020-01-22")
     @test formatToDateObject("10/31/22") == Date("2022-10-31")
+    @test formatToDateObject("2020-10-10") == Date("2020-10-10")
     
     @test convertTimeSeriesData([1,2,4,8]) == [1,2,4]
     @test convertTimeSeriesData([1,-1,4,8]) == [0,5,4]
