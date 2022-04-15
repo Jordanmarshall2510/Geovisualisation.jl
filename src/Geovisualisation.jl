@@ -196,7 +196,7 @@ information = [
                 id = "vaccines-tooltip",
             ),
             dbc_tooltip(
-                "Vaccines administered is the total amount of vaccines administered to individuals.",
+                "Vaccines administered is the total amount of single dose vaccines administered to individuals.",
                 target = "vaccines-tooltip",
             ),
         ],
