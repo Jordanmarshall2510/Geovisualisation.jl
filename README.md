@@ -25,7 +25,7 @@ COVID-19 Geovisualisation uses a number of languages, tools and frameworks to wo
 
 ## Run
 
-This web application must be run in the Julia REPL. The repository must first be cloned:
+This web application must be run in the Julia REPL with Julia version 1.7.2 or later. The repository must first be cloned:
 ```
 git clone https://github.com/Jordanmarshall2510/FYP-Geographical-Data-Visualiser.git
 ```
