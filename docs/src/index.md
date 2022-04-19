@@ -96,6 +96,7 @@ prettifyNumberArray(data)
 
 ```@docs
 roundNumberArray(data)
+```
 
 ## Index
 

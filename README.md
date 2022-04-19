@@ -65,6 +65,13 @@ julia> ]
 (Geovisualisation) pkg> test
 ```
 
+## Documentation
+
+To view the Julia documentation for this project, open up the following generated HTML file:
+```
+~/docs/build/index.html
+```
+
 ## Author
 ### Jordan Marshall ###
 4th Year LM051 Computer Systems
